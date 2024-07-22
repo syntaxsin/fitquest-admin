@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="../ad_style.css">
+    <script>
+        function redirectToMain(){
+            window.location.href = "index.html"
+        }
+        
+        function redirectToUsers(){
+            window.location.href = "manage-users.html"
+        }
+
+        function redirectToRewards(){
+            window.location.href = "manage-rewards.html"
+        }
+    </script>
+</head>
+<body>
+    <div class="side-menu">
+        <div class="brand-name" onclick="redirectToMain()">
+            <h1>Fit<span style="color: #1679AB;">Quest</span></h1>
+        </div>
+        <ul>
+            <li onclick="redirectToUsers()"><img src="../dashboard-img/manage_user.png" alt="manage_user" >&nbsp;Manage Members</li>
+            <li onclick="redirectToRewards()"><img src="../dashboard-img/rewards.png" alt="rewards" >&nbsp;Manage Rewards</li>
+            <li><img src="../dashboard-img/analytics.png" alt="analytics">&nbsp;Analytics</li>
+        </ul>
+    </div>
+    <div class="container">
+        <div class="header">
+            <div class="nav">
+                <div class="dashboard">
+                    <h1>Register Users</h1>
+                </div>
+                <div class="sign-out">
+                    <button class="logout-btn">Logout</button>
+                </div>
+            </div>
+        </div>
+        <div class="register">
+            <div class="register-tab">
+                <form class="registerForm">
+                    <label for="email">E-mail Address:</label>
+                    <input type="text" name="email" id="email" required>
+                    <label for="password">Password:</label>
+                    <input type="password" name="password" id="password" required>
+                    <button>Register</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="bundle.js"></script>
+</body>
+</html>

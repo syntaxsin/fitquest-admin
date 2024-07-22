@@ -1,0 +1,268 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+    font-weight: 600;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body{
+    min-height: 100vh;
+}
+
+a{
+    text-decoration: none;
+    color: #F0ECE5;
+    /* display: flex;
+    align-items: center;
+    justify-content: space-between; */
+}
+
+button{
+    cursor: pointer;
+}
+
+li{
+    list-style: none;
+}
+
+h1, h2, h3, label{
+    color: #F0ECE5;
+}
+
+/* Side Navigation and Header */
+.side-menu{
+    position: fixed;
+    background: #161A30;
+    width: 20vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.side-menu img{
+    width: 30px;
+    height: 30px;
+}
+
+.side-menu .brand-name{
+    font-size: 25px;
+    height: 10vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.side-menu li{
+    font-size: 25px;
+    padding: 20px 40px;
+    color: white;
+    display: flex;
+    align-items: center;
+    transition: 0.3s ease;
+}
+
+.side-menu li:hover{
+    background: #31304D;
+    color: #F0ECE5;
+    cursor: pointer;
+}
+.side-menu .sign-out{
+    flex: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 30px;
+}
+
+.side-menu button{
+    font-size: 18px;
+    color: #F0ECE5;
+    padding: 15px 25px;
+    background: #31304D;
+    border: none;
+    border-radius: 7px;
+    transition: 0.3s ease;
+}
+
+.side-menu button:hover{
+    color: #161A30;
+    background: #B6BBC4;
+    cursor: pointer;
+}
+
+.header-section{
+    position: absolute;
+    right: 0;
+    width: 80vw;
+    background: #F0ECE5;
+}
+
+.container{
+    position: absolute;
+    right: 0;
+    width: 80vw;
+    background: #F0ECE5;
+}
+
+.container button{
+    font-size: 18px;
+    color: #F0ECE5;
+    padding: 15px 20px;
+    background: #161A30;
+    border: none;
+    border-radius: 7px;
+    transition: 0.3s ease;
+}
+
+.container button:hover{
+    color: #161A30;
+    background: #B6BBC4;
+    cursor: pointer;
+}
+
+#section-label{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+/* Dashboard Contents */
+.container .dashboard-content{
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container .dashboard-content h1{
+    font-size: 60px;
+    color: #161A30;
+}
+
+.container .dashboard-content h3{
+    font-size: 40px;
+    color: #31304D;
+}
+
+.container .dashboard-content .cards img{
+    height: 120px;
+    width: 120px;
+}
+
+.container .dashboard-content .cards{
+    padding: 20px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.container .dashboard-content .cards .card{
+    width: 550px;
+    height: 250px;
+    background-color: #B6BBC4;
+    margin: 20px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    cursor: pointer;
+    transition: 0.2s ease-in;
+    border-radius: 10px;
+}
+
+.container .dashboard-content .cards .card:hover{
+    scale: 105%;
+}
+
+.container .dashboard-content .main-content{
+    margin-top: 20px;
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.container .dashboard-content .main-content .user-tab{
+    width: 70vw;
+    align-items: center;
+    justify-content: center;
+    background: #31304D;
+    border-radius: 10px;
+    box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.4), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.user-overview{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 15px 30px;
+    background: #161A30;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.user-overview h2{
+    flex: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.user-overview #add-user{
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.user-overview .user-btn{
+    flex: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rewards-tab{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 15px 30px;
+    background: #161A30;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.container .dashboard-content .main-content .rewards-overview{
+    width: 70vw;
+    background: #31304D;
+    margin: 25px 0;
+    border-radius: 10px;
+    box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.4), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.rewards-tab h2{
+    flex: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.rewards-tab #add-reward{
+    font-size: 16px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.rewards-tab .reward-btn{
+    flex: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

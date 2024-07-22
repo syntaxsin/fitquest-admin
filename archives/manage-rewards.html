@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rewards | FitQuest</title>
+    <link rel="stylesheet" href="../ad_style.css">
+    <script>
+        function redirectToMain(){
+            window.location.href = "index.html"
+        }
+        
+        function redirectToUsers(){
+            window.location.href = "manage-users.html"
+        }
+
+        function redirectToRegister(){
+            window.location.href = "register.html"
+        }
+    </script>
+</head>
+<body>
+    <div class="side-menu">
+        <div class="brand-name" onclick="redirectToMain()">
+            <h1>Fit<span style="color: #1679AB;">Quest</span></h1>
+        </div>
+        <ul>
+            <li><img src="../dashboard-img/manage_user.png" alt="manage_user">&nbsp;Manage Members</li>
+            <li><img src="../dashboard-img/rewards.png" alt="rewards">&nbsp;Manage Rewards</li>
+            <li><img src="../dashboard-img/analytics.png" alt="analytics">&nbsp;Analytics</li>
+        </ul>
+    </div>
+    <div class="container">
+        <div class="header">
+            <div class="nav">
+                <div class="dashboard">
+                    <h1>Rewards</h1>
+                </div>
+                <div class="sign-out">
+                    <button type="submit" class="register-btn" onclick="redirectToRegister()">Register</button>
+                </div>
+                <div class="sign-out">
+                    <button type="submit" class="logout-btn" href="#">Logout</button>
+                </div>
+            </div>
+        </div>
+        <div class="rewards-control">
+            <div class="control-tab">
+                <form class="addReward">
+                    <label for="name">Reward Name:</label>
+                    <input type="text" name="rewardName" id="name" required>
+                    <label for="description">Description:</label>
+                    <input type="text" name="rewardDescription" id="description" required>
+                    <label for="points">Required Points:</label>
+                    <input type="text" name="requiredPoints" id="points" required>
+                    <button>Add</button>
+                </form>
+            </div>
+            <div class="control-tab3">
+                <form class="updateReward">
+                    <label for="doc_id">Reward ID:</label>
+                    <input type="text" name="reward_id" id="doc-id" required>
+                    <label for="name">Reward Name:</label>
+                    <input type="text" name="rewardName" id="name" required>
+                    <label for="points">Required Points:</label>
+                    <input type="text" name="requiredPoints" id="points" required>
+                    <label for="description">Description:</label>
+                    <input type="text" name="rewardDescription" id="description" required>
+                    <button>Update</button>
+                </form>
+            </div>
+            <div class="control-tab2">
+                <form class="deleteReward">
+                    <label for="doc_id">Reward ID:</label>
+                    <input type="text" name="reward_id" id="doc_id">
+                    <button>Delete</button>
+                </form>
+            </div>
+            <div class="view-tab">
+                
+            </div>
+        </div>
+    </div>
+    <script type="module" src="bundle.js"></script>
+    <!-- <script type="module">
+        import { 
+            getRewards, 
+            addRewardToFirestore, 
+            deleteRewardFromFirestore,
+            updateRewardInFirestore
+        } from './firestore.js';
+
+        const addRewardForm = document.querySelector('.addReward');
+        const deleteRewardForm = document.querySelector('.deleteReward');
+        const updateRewardForm = document.querySelector('.updateReward');
+        const viewTab = document.querySelector('.view-tab');
+
+        // Fetch and display rewards
+        async function displayRewards() {
+            try {
+                const rewards = await getRewards();
+                // Clear previous content and update the viewTab with the rewards
+            } catch (error) {
+                console.error("Error fetching rewards:", error);
+                // Display an error message in viewTab
+            }
+        }
+
+        // Event listener for adding a reward
+        addRewardForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                rewardName: addRewardForm.rewardName.value,
+                rewardDescription: addRewardForm.rewardDescription.value,
+                requiredPoints: parseInt(addRewardForm.requiredPoints.value),
+            };
+
+            try {
+                const success = await addRewardToFirestore(data);
+                if (success) {
+                    addRewardForm.reset();
+                    displayRewards(); // Refresh the displayed rewards
+                } else {
+                    console.error("Failed to add reward."); 
+                    // Add more specific error handling if needed
+                }
+            } catch (error) {
+                console.error("Error adding reward:", error.message); // Log error message
+            }
+        });
+
+        // Event listener for deleting a reward
+        deleteRewardForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const rewardId = deleteRewardForm.reward_id.value;
+
+            try {
+                const success = await deleteRewardFromFirestore(rewardId);
+                if (success) {
+                    deleteRewardForm.reset();
+                    displayRewards(); 
+                } else {
+                    console.error("Failed to delete reward."); 
+                }
+            } catch (error) {
+                console.error("Error deleting reward:", error.message); 
+            }
+        });
+
+        // Event listener for updating a reward
+        updateRewardForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const updatedData = {
+                reward_id: updateRewardForm.reward_id.value, // Assuming you want to include this in the updated data
+                rewardName: updateRewardForm.rewardName.value,
+                rewardDescription: updateRewardForm.rewardDescription.value,
+                requiredPoints: parseInt(updateRewardForm.requiredPoints.value),
+            };
+
+            try {
+                const success = await updateRewardInFirestore(updateRewardForm.reward_id.value, updatedData);
+                if (success) {
+                    updateRewardForm.reset();
+                    displayRewards();
+                } else {
+                    console.error("Failed to update reward."); 
+                }
+            } catch (error) {
+                console.error("Error updating reward:", error.message);
+            }
+        });
+
+        displayRewards(); 
+    </script> -->
+</body>
+</html>
