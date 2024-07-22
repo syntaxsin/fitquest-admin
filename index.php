@@ -14,6 +14,7 @@
 
 <head>
     <!--- basic page needs
+    CLARK
    ================================================== -->
     <meta charset="utf-8">
     <title>FitQuest</title>
