@@ -158,7 +158,7 @@
                             <th>ID</th>
                             <th>Name</th>
                             <th>Email</th>
-                            <th>Actions</th>
+                            <thz>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
