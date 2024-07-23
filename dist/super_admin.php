@@ -92,7 +92,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav ml-auto mr-5">
                 <li class="nav-item">
-                    <a class="nav-link" href="#" style="font-size: 20px;">Deactivad Accounts</a>
+                    <a class="nav-link" href="#" style="font-size: 20px;">Deactivated Accounts</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#" style="font-size: 20px;">Users</a>
@@ -119,23 +119,13 @@
                             <th>First Name</th>
                             <th>Last Name</th>
                             <th>Email</th>
-                            <th>Branch</th>
+                            <th>Branch Name</th>
+                            <th>Location</th>
+                            <th>Account Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>FQAD1234</td>
-                            <td>John</td>
-                            <td>Doe</td>
-                            <td>john@example.com</td>
-                            <td>Manila</td>
-                            <td>
-                                <button class="btn btn-secondary-custom">Delete</button>
-                                <button class="btn btn-secondary-custom">Update</button>
-                            </td>
-                        </tr>
-                        <!-- More rows as needed -->
                     </tbody>
                 </table>
             </div>

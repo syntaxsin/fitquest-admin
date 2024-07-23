@@ -80,7 +80,7 @@ addAdminForm.addEventListener('submit', async (event) => {
         await setDoc(doc(rewardsCollection), {}); // Create empty rewards collection
         
         // 6. Inform the user of successful admin creation
-        alert(`Admin added successfully to ${newGymCollectionName}!`);
+        alert(`Admin added successfully to ${branch}!`);
         addAdminForm.reset();
         // $('#addAdminModal').modal('hide');
     } 
@@ -89,3 +89,45 @@ addAdminForm.addEventListener('submit', async (event) => {
         alert('Failed to add admin. Please check the console for details.');
     }
 });
+
+// Fetch and display admin data
+function displayAdmins() {
+    const adminList = document.querySelector("#admin-list tbody");
+    adminList.innerHTML = ''; // Clear existing data
+
+    const gymQuery = query(collection(db, 'Gym')); // Query all gyms
+    onSnapshot(gymQuery, async (snapshot) => {
+        snapshot.forEach(async (gymDoc) => {
+            const gymData = gymDoc.data(); // Get gym details (Location, Name)
+            const membersCollection = collection(gymDoc.ref, 'Members'); 
+            const membersQuery = query(membersCollection, where("Status", "==", "Active Admin")); 
+            
+            const membersSnapshot = await getDocs(membersQuery);
+            membersSnapshot.forEach((memberDoc) => {
+                const adminData = memberDoc.data();
+                
+                // Retrieve status from the adminData instead of gymData
+                const status = adminData.Status; 
+                
+                const row = `
+                    <tr>
+                        <td>${gymDoc.id}</td>
+                        <td>${adminData.FirstName}</td>
+                        <td>${adminData.LastName}</td>
+                        <td>${adminData.Email}</td>
+                        <td>${gymData.Name}</td> 
+                        <td>${gymData.Location}</td>
+                        <td>${status}</td>
+                        <td>
+                            <button class="btn btn-secondary-custom" onclick="editAdmin('${gymDoc.id}', '${memberDoc.id}')">Update</button>
+                            <button class="btn btn-secondary-custom" onclick="deleteAdmin('${gymDoc.id}', '${memberDoc.id}')">Delete</button>
+                        </td>
+                    </tr>
+                `;
+                adminList.innerHTML += row; 
+            });
+        });
+    });
+}
+
+displayAdmins();
