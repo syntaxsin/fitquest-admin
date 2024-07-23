@@ -91,3 +91,18 @@ function startPHPSession(userId, branch, redirectUrl, role) {
         console.error('Error starting PHP session:', error);
     });
 }
+
+async function loadBranches() {
+    const gymCollection = collection(db, 'Gym');
+    const gymSnapshot = await getDocs(gymCollection);
+    const branchSelect = document.getElementById('branch');
+
+    gymSnapshot.forEach(doc => {
+        const branchOption = document.createElement('option');
+        branchOption.value = doc.id;
+        branchOption.textContent = doc.data().Name;
+        branchSelect.appendChild(branchOption);
+    });
+}
+
+loadBranches();

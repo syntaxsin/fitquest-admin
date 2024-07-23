@@ -8,7 +8,8 @@ module.exports = {
         points: './src/points.js',
         user_profile: './src/user_profile.js',
         inactive_users: './src/inactive_users.js',
-        rewards_archive: './src/rewards_archives.js'
+        rewards_archive: './src/rewards_archives.js',
+        super_admin: './src/super_admin.js'
     },
     output: {
         path: path.resolve(__dirname, 'dist'),

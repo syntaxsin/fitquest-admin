@@ -21,6 +21,11 @@
             color: white;
             font-size: 20px;
         }
+        .overview-label{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
         .main-content {
             width: 95vw;
             margin: 2rem auto;
@@ -87,13 +92,13 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav ml-auto mr-5">
                 <li class="nav-item">
-                    <a class="nav-link" href="#" style="font-size: 25px;">Admin</a>
+                    <a class="nav-link" href="#" style="font-size: 20px;">Deactivad Accounts</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" style="font-size: 25px;">Users</a>
+                    <a class="nav-link" href="#" style="font-size: 20px;">Users</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" style="font-size: 25px;">Rewards</a>
+                    <a class="nav-link" href="#" style="font-size: 20px;">Rewards</a>
                 </li>
             </ul>
         </div>
@@ -102,8 +107,10 @@
     <div class="main-content">
         <h1>Welcome, Super Admin!</h1>
         <div class="card card-custom">
-            <h3>Admin Accounts Overview</h3>
-            <button class="btn btn-primary-custom mb-3" data-toggle="modal" data-target="#addAdminModal">Open New Branch Account</button>
+            <div class="overview-label">
+                <h3>Admin Accounts Overview</h3>
+                <button class="btn btn-primary-custom mb-3 float-right" data-toggle="modal" data-target="#addAdminModal">Open New Branch Account</button>
+            </div>
             <div id="admin-list">
                 <table class="table table-striped">
                     <thead>
@@ -152,7 +159,11 @@
                             <input type="email" class="form-control" id="admin-email" required>
                         </div>
                         <div class="form-group">
-                            <label for="admin-fname">Branch</label>
+                            <label for="admin-location">Location</label>
+                            <input type="text" class="form-control" id="admin-location" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="admin-branch">Branch Name</label>
                             <input type="text" class="form-control" id="admin-branch" required>
                         </div>
                         <div class="form-group">
@@ -178,48 +189,6 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
-
-    <script>
-        document.getElementById('logout').addEventListener('click', function() {
-            // Handle logout logic here
-            alert('Logout');
-        });
-
-        document.getElementById('add-admin-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            // Handle add admin logic here
-            alert('Admin added');
-        });
-
-        // Load admin list dynamically
-        function loadAdmins() {
-            const adminList = document.getElementById('admin-list');
-            adminList.innerHTML = `
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>John Doe</td>
-                            <td>john@example.com</td>
-                            <td>
-                                <button class="btn btn-secondary-custom">Delete</button>
-                            </td>
-                        </tr>
-                        <!-- More rows as needed -->
-                    </tbody>
-                </table>
-            `;
-        }
-
-        loadAdmins();
-    </script>
+    <script type="module" src="super_admin.bundle.js"></script>
 </body>
 </html>

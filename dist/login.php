@@ -93,23 +93,6 @@
             </form>
         </div>
     </div>
-    <script type="module" src="auth.js"></script>
-    <script type="module">
-        
-        async function loadBranches() {
-            const gymCollection = collection(db, 'Gym');
-            const gymSnapshot = await getDocs(gymCollection);
-            const branchSelect = document.getElementById('branch');
-
-            gymSnapshot.forEach(doc => {
-                const branchOption = document.createElement('option');
-                branchOption.value = doc.id;
-                branchOption.textContent = doc.data().Name;
-                branchSelect.appendChild(branchOption);
-            });
-        }
-
-        loadBranches();
-    </script>
+    <script type="module" src="auth.bundle.js"></script>
 </body>
 </html>
