@@ -12,7 +12,6 @@ import {
     signOut, signInWithEmailAndPassword,
     onAuthStateChanged
 } from 'firebase/auth'
-import { getFunctions, httpsCallable} from 'firebase/functions'
 
 const firebaseConfig = {
     apiKey: "AIzaSyBxEwY413QHRNSRv6_38Odi9wfWWJg249I",
@@ -43,12 +42,31 @@ addAdminForm.addEventListener('submit', async (event) => {
     try {
         // 1. Create Firebase Authentication User
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        console.log('User Created:', userCredential);
+        // 2. Determine next available GYM number
+        const gymQuery = query(collection(db, 'Gym'));
+        const gymsSnapshot = await getDocs(gymQuery);
 
-        // 2. Create Gym Collection (if it doesn't exist)
-        const gymCollection = collection(db, `GYM-${branch}`);
+        let maxGymNumber = 0;
+        gymsSnapshot.forEach((doc) => {
+            const gymNumber = parseInt(doc.id.replace('GYM-', '')); 
+            maxGymNumber = Math.max(maxGymNumber, gymNumber);
+        });
 
-        // 3. Create Members Subcollection and add admin details
-        const membersCollection = collection(gymCollection, 'Members');
+        const newGymNumber = maxGymNumber + 1; // Increment to get the new GYM number
+        const newGymCollectionName = `GYM-${newGymNumber}`; 
+
+        // 3. Create new gym document in the 'Gym' collection
+        const gymDocRef = doc(db, 'Gym', newGymCollectionName);
+        console.log('Gym Doc Ref:', gymDocRef.path); // Log the gym doc reference
+        await setDoc(gymDocRef, {
+            Location: location, 
+            Name: branch  
+        });
+
+        // 4. Create nested Members collection
+        const membersCollection = collection(gymDocRef, 'Members'); // Reference as subcollection
+        console.log('Members Collection Ref:', membersCollection.path); // Log the members collection reference
         await setDoc(doc(membersCollection, userCredential.user.uid), {
             Email: email,
             FirstName: firstName,
@@ -56,23 +74,17 @@ addAdminForm.addEventListener('submit', async (event) => {
             Status: 'Active Admin'
         });
             
-        // 4. Create Rewards Subcollection
-        const rewardsCollection = collection(gymCollection, 'Rewards');
-        await setDoc(doc(rewardsCollection), {});
+        // 5. Create nested Rewards collection
+        const rewardsCollection = collection(gymDocRef, 'Rewards');  // Reference as subcollection
+        console.log('Rewards Collection Ref:', rewardsCollection.path); // Log the rewards collection reference
+        await setDoc(doc(rewardsCollection), {}); // Create empty rewards collection
         
-
-        // 5. Add Gym details (Location, Name) to the Gym collection
-        await setDoc(doc(gymCollection), {
-            Location: location, 
-            Name: branch  
-        });
-
-        alert('Admin added successfully!');
-
-        // 6. Clear the form (optional)
+        // 6. Inform the user of successful admin creation
+        alert(`Admin added successfully to ${newGymCollectionName}!`);
         addAdminForm.reset();
-        $('#addAdminModal').modal('hide');
-    } catch (error) {
+        // $('#addAdminModal').modal('hide');
+    } 
+    catch (error) {
         console.error('Error adding admin:', error);
         alert('Failed to add admin. Please check the console for details.');
     }
