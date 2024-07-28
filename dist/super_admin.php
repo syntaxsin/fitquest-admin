@@ -221,7 +221,7 @@
                     <input type="hidden" id="delete-gym-id">
                     <input type="hidden" id="delete-member-id">
                     <button type="button" class="btn btn-secondary-custom" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirm-delete">Delete</button>
+                    <button type="submit" class="btn btn-danger" id="confirm-delete">Deactivate</button>
                 </div>
             </div>
         </div>

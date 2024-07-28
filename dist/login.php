@@ -70,10 +70,6 @@
             box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.4), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
         }
     </style>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.8.4/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.8.4/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.8.4/firebase-auth.js"></script>
 </head>
 <body>
     <div class="login-container">
@@ -81,10 +77,6 @@
         <div class="login">
             <form class="loginForm" id="loginForm">
                 <div class="loginMessage" class="msgDiv" style="display:none;"></div>
-                <label for="branch">Select Branch:</label>
-                <select name="branch" id="branch">
-                    <option value="">Select Branch</option>
-                </select>
                 <label for="email">E-mail Address:</label>
                 <input type="text" name="email" id="email">
                 <label for="password">Password:</label>

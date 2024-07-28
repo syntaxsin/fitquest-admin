@@ -127,15 +127,6 @@ updateAdminForm.addEventListener('submit', async (e) => {
             transaction.update(gymDocRef, updatedGymData);
 
             transaction.update(adminDocRef, { GymName: newBranchName });
-
-            // Update UI (Assuming you have a table to display admins)
-            const rowId = `${gymId}-${memberId}`;
-            const row = document.getElementById(rowId);
-            if (row) {
-                const cells = row.querySelectorAll('td');
-                cells[4].textContent = newBranchName;
-                cells[5].textContent = newLocation;
-            }
         });
 
         console.log("Gym information updated successfully.");
@@ -153,7 +144,6 @@ updateAdminForm.addEventListener('submit', async (e) => {
 function openEditAdminModal(gymId, memberId) {
     document.getElementById('edit-gym-id').value = gymId;
     document.getElementById('edit-member-id').value = memberId;
-    // console.log("gymId:", gymId, "memberId:", memberId);
 
     // Fetch the gym document to populate the input fields
     const gymRef = doc(db, "Gym", `GYM${gymId}`); 
@@ -175,39 +165,45 @@ function openEditAdminModal(gymId, memberId) {
         });
 }
 
-async function deactivateAdmin(gymId, memberId) {
-    const gymDocRef = doc(db, 'Gym', gymId);
+// Deactivate Admin Function
+const deactivateAdminForm = document.getElementById("deleteAdminModal"); // Assuming you have a form in the modal
+const confirmDeactivateButton = document.getElementById("confirm-delete");
+confirmDeactivateButton.addEventListener('click', async (event) => {
+    event.preventDefault(); 
+    
+    // Get gymId and memberId from hidden input fields in your modal
+    const gymId = document.getElementById('delete-gym-id').value;
+    const memberId = document.getElementById('delete-member-id').value;
+
+    const gymCollectionName = `GYM${gymId}`; 
+    const gymDocRef = doc(db, 'Gym', gymCollectionName);
     const adminDocRef = doc(gymDocRef, 'Members', memberId);
 
     try {
-        // 1. Transaction for Safe Data Transfer
         await runTransaction(db, async (transaction) => {
             const adminDoc = await transaction.get(adminDocRef);
-
             if (!adminDoc.exists()) {
                 throw new Error("Admin not found");
             }
             
             const adminData = adminDoc.data();
-
-            // 2. Create 'deactivated_admins' collection if needed
             const deactivatedAdminsCollection = collection(db, 'deactivated_admins');
-            transaction.set(doc(deactivatedAdminsCollection, gymId), adminData);
+            await transaction.set(doc(deactivatedAdminsCollection, gymCollectionName), adminData);
 
-            // 3. Remove from 'Gym' collection
-            transaction.delete(adminDocRef);
-            
-            // 4. Update Status for display
-            transaction.update(adminDocRef, { Status: 'Deactivated Admin'});
+            transaction.delete(adminDocRef); 
         });
-
+        
+        // Optional: Close the modal
+        $('#deleteAdminModal').modal('hide');  // Using jQuery
+        
         alert(`Admin ${memberId} from gym ${gymId} has been deactivated.`);
+        displayAdmins();  // Refresh the admin list display
 
     } catch (error) {
         console.error('Error deactivating admin:', error);
         alert('Failed to deactivate admin. Please try again.');
     }
-}
+});
 
 // Fetch and display admin data
 function displayAdmins() {
@@ -248,9 +244,9 @@ function displayAdmins() {
                             <button class="btn btn-secondary-custom edit-button" data-bs-toggle="modal" data-bs-target="#editAdminModal" data-gym-id="${gymDoc.id}" data-member-id="${memberDoc.id}">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn btn-secondary-custom del-button"><i class="fas fa-power-off" data-bs-toggle="modal" data-bs-target="#deleteAdminModal" data-gym-id="${gymDoc.id.replace('GYM', '')}" data-member-id="${memberDoc.id}"></i></button>
-                            <button class="btn btn-secondary-custom" onclick="manageUsers('${gymDoc.id}', '${memberDoc.id}')"><i class="fas fa-users"></i></button>
-                            <button class="btn btn-secondary-custom" onclick="manageRewards('${gymDoc.id}', '${memberDoc.id}')"><i class="fas fa-medal"></i></button>
+                            <button class="btn btn-secondary-custom del-button" data-bs-toggle="modal" data-bs-target="#deleteAdminModal" data-gym-id="${gymDoc.id.replace('GYM', '')}" data-member-id="${memberDoc.id}">
+                                <i class="fas fa-power-off" ></i>
+                            </button>
                         </td>
                     `;
                     adminList.appendChild(newRow);
@@ -258,8 +254,6 @@ function displayAdmins() {
                     // Add an event listener to the edit button after it's added to the DOM
                     const editButton = newRow.querySelector('.edit-button');
                     editButton.addEventListener('click', () => openEditAdminModal(gymDoc.id.replace('GYM', ''), memberDoc.id));
-                    const deleteButton = newRow.querySelector('.del-button');
-                    deleteButton.addEventListener('click', () => deactivateAdmin(gymDoc.id.replace('GYM', ''), memberDoc.id));
                 });
 
             } else if (change.type === 'removed') {

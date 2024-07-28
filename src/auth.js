@@ -1,7 +1,11 @@
 import { initializeApp } from "firebase/app";
 import {
-    getFirestore, collection, getDocs, doc, getDoc
-} from 'firebase/firestore';
+    getFirestore, collection, onSnapshot,
+    addDoc, deleteDoc, doc, getDocs,
+    query, where, runTransaction,
+    orderBy, serverTimestamp,
+    getDoc, updateDoc,setDoc
+} from 'firebase/firestore'
 import {
     getAuth, signInWithEmailAndPassword
 } from 'firebase/auth';
@@ -27,32 +31,49 @@ loginForm.addEventListener('submit', async (e) => {
 
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const branch = document.getElementById('branch').value;
-
-    if (branch === "") {
-        alert('Please select a branch');
-        return;
-    }
-
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        const userDocRef = doc(db, 'users', user.uid);
-        const adminDocRef = doc(db, 'admin', user.uid);
-        const userDocSnap = await getDoc(userDocRef);
-        const adminDocSnap = await getDoc(adminDocRef);
+        // Query all Gym collections
+        const gymCollection = collection(db, 'Gym');
+        const gymSnapshot = await getDocs(gymCollection);
+        
+        let foundUser = false;
+        let redirectUrl = '';
+        let role = '';
+        let gymDocId = '';
 
-        if (adminDocSnap.exists()) {
-            localStorage.setItem('loggedInAdminId', user.uid);
-            sessionStorage.setItem('loggedInAdminId', user.uid);
-            startPHPSession(user.uid, branch, 'dashboard_index.php', 'admin');
-        } else if (userDocSnap.exists()) {
-            localStorage.setItem('loggedInUserId', user.uid);
-            sessionStorage.setItem('loggedInUserId', user.uid);
-            startPHPSession(user.uid, branch, 'user_profile.php', 'user');
+        for (const gymDoc of gymSnapshot.docs) {
+            const membersCollection = collection(gymDoc.ref, 'Members');
+            const memberQuery = query(membersCollection, where('Email', '==', email));
+            const memberSnapshot = await getDocs(memberQuery);
+
+            if (!memberSnapshot.empty) {
+                const memberDoc = memberSnapshot.docs[0]; // Assuming unique email per Gym
+                foundUser = true;
+                gymDocId = gymDoc.id;
+
+                if (memberDoc.data().Status === 'Active Admin') {
+                    redirectUrl = 'dashboard_index.php';
+                    role = 'admin';
+                    localStorage.setItem('loggedInAdminId', user.uid);
+                    sessionStorage.setItem('loggedInAdminId', user.uid);
+                } else if (memberDoc.data().Status === 'Active User') {
+                    redirectUrl = 'user_profile.php';
+                    role = 'user';
+                    localStorage.setItem('loggedInUserId', user.uid);
+                    sessionStorage.setItem('loggedInUserId', user.uid);
+                }
+
+                break; // Stop searching once user is found in a Gym
+            }
+        }
+
+        if (foundUser) {
+            startPHPSession(user.uid, gymDocId, redirectUrl, role); // Pass gymDoc.id as branch
         } else {
-            alert("User does not exist.");
+            alert("User not found or inactive.");
         }
     } catch (err) {
         if (err.code === 'auth/wrong-password') {
@@ -67,8 +88,8 @@ loginForm.addEventListener('submit', async (e) => {
     loginForm.reset();
 });
 
-function startPHPSession(userId, branch, redirectUrl, role) {
-    const body = role === 'admin' ? `loggedInAdminId=${userId}&branch=${branch}` : `loggedInUserId=${userId}&branch=${branch}`;
+function startPHPSession(userId, gymDocId, redirectUrl, role) {
+    const body = role === 'admin' ? `loggedInAdminId=${userId}&branch=${gymDocId}` : `loggedInUserId=${userId}&branch=${gymDocId}`;
 
     fetch('create_session.php', {
         method: 'POST',
@@ -105,4 +126,4 @@ async function loadBranches() {
     });
 }
 
-loadBranches();
+// loadBranches();
