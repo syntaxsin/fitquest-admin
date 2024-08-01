@@ -12,7 +12,16 @@
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/vendor.css">
     <link rel="stylesheet" href="../css/main.css">
+    <script>
+        // Check user type and gym information
+        const userType = localStorage.getItem('userType');
+        const gymId = localStorage.getItem('gymId');
 
+        if (userType !== 'user' || !gymId) {
+            // Redirect to login if not an admin or gym information is missing
+            window.location.href = 'login.php'; 
+        }
+    </script>
     <style>
         #user-profile {
             padding: 60px 0;

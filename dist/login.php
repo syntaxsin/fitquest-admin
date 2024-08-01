@@ -1,14 +1,3 @@
-<?php
-    session_start();
-
-    if (isset($_SESSION['loggedInAdminId'])) {
-        header("Location: dashboard_index.php");
-        exit();
-    } else if (isset($_SESSION['loggedInUserId'])) {
-        header("Location: user_profile.php");
-        exit();
-    }
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -78,7 +67,7 @@
             <form class="loginForm" id="loginForm">
                 <div class="loginMessage" class="msgDiv" style="display:none;"></div>
                 <label for="email">E-mail Address:</label>
-                <input type="text" name="email" id="email">
+                <input type="email" name="email" id="email">
                 <label for="password">Password:</label>
                 <input type="password" name="password" id="password">
                 <button id="login-btn">Login</button>

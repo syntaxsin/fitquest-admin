@@ -94,7 +94,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav ml-auto mr-5">
                 <li class="nav-item">
-                    <a class="nav-link" href="#" style="font-size: 20px;">Deactivated Admins</a>
+                    <a class="nav-link" href="#" style="font-size: 20px;" data-toggle="modal" data-target="#deactAdminModal">Deactivated Admins</a>
                 </li>
                 <!-- <li class="nav-item">
                     <a class="nav-link" href="#" style="font-size: 20px;">Users</a>
@@ -104,7 +104,7 @@
                 </li> -->
             </ul>
         </div>
-        <button class="btn btn-secondary-custom" type="submit" style="font-size: 20px;">Logout</button>
+        <button class="btn btn-secondary-custom logout" type="submit" style="font-size: 20px;">Logout</button>
     </nav>
     <div class="main-content">
         <h1>Welcome, Super Admin!</h1>
@@ -227,12 +227,43 @@
         </div>
     </div>
 
+    <!-- Deactivate Admins Modal -->
+    <div class="modal fade" id="deactAdminModal" tabindex="-1" role="dialog" aria-labelledby="deactAdminModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="background: #161A30;">
+                    <h5 class="modal-title" id="editAdminModalLabel" style="color: #F0ECE5;">Deactivated Admins</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0ECE5;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="deact-list">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Branch Name</th>
+                                    <th>Location</th>
+                                    <th>Account Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
     <script type="module" src="super_admin.bundle.js"></script>
-    <script>
+    <!-- <script>
 
         function manageUsers(gymId, memberId) {
             // Manage users logic here
@@ -243,6 +274,6 @@
             // Manage rewards logic here
             alert(`Manage rewards for admin ${memberId} from gym ${gymId}`);
         }
-    </script>
+    </script> -->
 </body>
 </html>

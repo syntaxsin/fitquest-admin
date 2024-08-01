@@ -1,4 +1,3 @@
-<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -106,6 +105,16 @@
             border-radius: 5px;
         }
     </style>
+    <script>
+        // Check user type and gym information
+        const userType = localStorage.getItem('userType');
+        const gymId = localStorage.getItem('gymId');
+
+        if (userType !== 'admin' || !gymId) {
+            // Redirect to login if not an admin or gym information is missing
+            window.location.href = 'login.php'; 
+        }
+    </script>
 </head>
 <body>
     <div class="side-menu">

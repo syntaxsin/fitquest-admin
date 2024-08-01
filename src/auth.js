@@ -25,56 +25,57 @@ initializeApp(firebaseConfig);
 const db = getFirestore();
 const auth = getAuth();
 
+// Super Admin Email - REPLACE WITH YOUR ACTUAL SUPER ADMIN EMAIL
+const SUPER_ADMIN_EMAIL = 'superadmin_fitquest@atmr.dev';
+
+// Login Form
 const loginForm = document.querySelector('.loginForm');
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+    
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // Query all Gym collections
-        const gymCollection = collection(db, 'Gym');
-        const gymSnapshot = await getDocs(gymCollection);
-        
-        let foundUser = false;
-        let redirectUrl = '';
-        let role = '';
-        let gymDocId = '';
+        // Super Admin Check
+        if (email === SUPER_ADMIN_EMAIL) {
+            localStorage.setItem('userType', 'super_admin'); 
+            window.location.href = 'super_admin.php'; 
+        } else {
+            // Regular User/Admin Check
+            const gymCollection = collection(db, 'Gym');
+            const gymSnapshot = await getDocs(gymCollection);
+            let foundUser = false;
 
-        for (const gymDoc of gymSnapshot.docs) {
-            const membersCollection = collection(gymDoc.ref, 'Members');
-            const memberQuery = query(membersCollection, where('Email', '==', email));
-            const memberSnapshot = await getDocs(memberQuery);
+            for (const gymDoc of gymSnapshot.docs) {
+                const membersCollection = collection(gymDoc.ref, 'Members');
+                const memberQuery = query(membersCollection, where('Email', '==', email));
+                const memberSnapshot = await getDocs(memberQuery);
 
-            if (!memberSnapshot.empty) {
-                const memberDoc = memberSnapshot.docs[0]; // Assuming unique email per Gym
-                foundUser = true;
-                gymDocId = gymDoc.id;
+                if (!memberSnapshot.empty) {
+                    const memberDoc = memberSnapshot.docs[0];
+                    foundUser = true;
 
-                if (memberDoc.data().Status === 'Active Admin') {
-                    redirectUrl = 'dashboard_index.php';
-                    role = 'admin';
-                    localStorage.setItem('loggedInAdminId', user.uid);
-                    sessionStorage.setItem('loggedInAdminId', user.uid);
-                } else if (memberDoc.data().Status === 'Active User') {
-                    redirectUrl = 'user_profile.php';
-                    role = 'user';
-                    localStorage.setItem('loggedInUserId', user.uid);
-                    sessionStorage.setItem('loggedInUserId', user.uid);
+                    const role = memberDoc.data().Status === 'Active Admin' ? 'admin' : 'user';
+
+                    // Store user type and gym information
+                    localStorage.setItem('userType', role);
+                    localStorage.setItem('gymId', gymDoc.id);
+                    
+                    // Redirect based on role (no need for startPHPSession)
+                    window.location.href = role === 'admin' ? 'dashboard_index.php' : 'user_profile.php';
+
+                    break; // Stop searching once user is found
                 }
-
-                break; // Stop searching once user is found in a Gym
+            }
+            if (!foundUser) {
+                alert("User not found or inactive.");
             }
         }
 
-        if (foundUser) {
-            startPHPSession(user.uid, gymDocId, redirectUrl, role); // Pass gymDoc.id as branch
-        } else {
-            alert("User not found or inactive.");
-        }
     } catch (err) {
         if (err.code === 'auth/wrong-password') {
             alert('Incorrect password');
@@ -85,45 +86,53 @@ loginForm.addEventListener('submit', async (e) => {
             alert('An error occurred during login. Please try again.');
         }
     }
-    loginForm.reset();
+    loginForm.reset(); 
 });
 
-function startPHPSession(userId, gymDocId, redirectUrl, role) {
-    const body = role === 'admin' ? `loggedInAdminId=${userId}&branch=${gymDocId}` : `loggedInUserId=${userId}&branch=${gymDocId}`;
+// Start PHP Session Function
+// function startPHPSession(userId, gymDocId, redirectUrl, role) {
+    
+//     const body = new URLSearchParams({
+//         loggedInUserId: userId,
+//         branch: gymDocId || '' 
+//     });
 
-    fetch('create_session.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: body,
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok.');
-        }
-        return response.text();
-    })
-    .then(data => {
-        console.log(data);
-        window.location.href = redirectUrl;
-    })
-    .catch(error => {
-        console.error('Error starting PHP session:', error);
-    });
-}
+//     if (role === 'super_admin') {
+//         body.append('role', 'super_admin');  
+//     } else if (role === 'admin') {
+//         body.append('loggedInAdminId', userId); 
+//     } // No else block needed for regular users
+    
+//     fetch('create_session.php', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/x-www-form-urlencoded',
+//         },
+//         body: body.toString(),  
+//     })
+//     .then(response => {
+//         if (!response.ok) {
+//             throw new Error('Network response was not ok.');
+//         }
+//         return response.text();
+//     })
+//     .then(data => {
+//         // Logging for debugging (optional)
+//         console.log("PHP Session Response:", data); 
 
-async function loadBranches() {
-    const gymCollection = collection(db, 'Gym');
-    const gymSnapshot = await getDocs(gymCollection);
-    const branchSelect = document.getElementById('branch');
-
-    gymSnapshot.forEach(doc => {
-        const branchOption = document.createElement('option');
-        branchOption.value = doc.id;
-        branchOption.textContent = doc.data().Name;
-        branchSelect.appendChild(branchOption);
-    });
-}
-
-// loadBranches();
+//         // Determine redirection based on role
+//         switch (role) {
+//             case 'super_admin':
+//                 window.location.href = 'super_admin.php'; 
+//                 break;
+//             case 'admin':
+//                 window.location.href = 'dashboard_index.php';
+//                 break;
+//             default: // Regular user
+//                 window.location.href = 'user_profile.php'; 
+//         }
+//     })
+//     .catch(error => {
+//         console.error('Error starting PHP session:', error);
+//     });
+// }
