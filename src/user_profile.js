@@ -54,29 +54,44 @@ const userNameElement = document.getElementById('userName');
 const userEmailElement = document.getElementById('userEmail');
 const userPointsElement = document.getElementById('userPoints');
 
-onAuthStateChanged(auth, (user) => {
+// Function to display user data (modified)
+function displayUserData(user) { 
     if (user) {
-        const userId = user.uid;
+        const gymId = localStorage.getItem('gymId');
 
-        // 1. Get Specific User Document
-        const docRef = doc(userRef, userId);
-        getDoc(docRef)
-            .then((doc) => {
-                if (doc.exists()) {
-                    const userData = doc.data();
-                    userNameElement.textContent = userData.firstName;
-                    userEmailElement.textContent = userData.email;
-                    userPointsElement.textContent = userData.points || 0; // Default to 0 if not set
-                } else {
-                    console.log("No such document!");
-                }
-            })
-            .catch((error) => {
-                console.log("Error getting document:", error);
-            });
+        if (gymId) {
+            const gymDocRef = doc(db, 'Gym', gymId);
+            const membersCollection = collection(gymDocRef, 'Members');
+            const userQuery = query(membersCollection, where('Email', '==', user.email), where('Status', '==', 'Active User'));
+
+            getDocs(userQuery) // Use getDocs here instead of onSnapshot
+                .then((userSnapshot) => {
+                    if (!userSnapshot.empty) {
+                        const userData = userSnapshot.docs[0].data();
+                        userNameElement.textContent = userData.FirstName;
+                        userEmailElement.textContent = userData.Email;
+                        userPointsElement.textContent = userData.Points || 0;
+                    } else {
+                        console.log("User not found in this gym or is not an 'Active User'");
+                        // Handle the case where the user is not found or not active
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching user data:", error);
+                });
+        } else {
+            console.log("Gym ID not found in localStorage");
+            // Handle the case where gymId is missing
+        }
     } else {
-        console.log("User is not logged in.");
+        console.log("User not authenticated. Redirecting to login...");
+        window.location.href = 'login.php';
     }
+}
+
+// Use onAuthStateChanged to ensure the user is authenticated before fetching data
+onAuthStateChanged(auth, (user) => {
+    displayUserData(user);
 });
 
 const logOut = document.getElementById('logout-button')
