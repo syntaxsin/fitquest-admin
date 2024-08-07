@@ -66,7 +66,7 @@ loginForm.addEventListener('submit', async (e) => {
                     localStorage.setItem('gymId', gymDoc.id);
                     
                     // Redirect based on role (no need for startPHPSession)
-                    window.location.href = role === 'admin' ? 'dashboard_index.php' : 'user_profile.php';
+                    window.location.href = role === 'admin' ? 'admin_index.php' : 'user_profile.php';
 
                     break; // Stop searching once user is found
                 }

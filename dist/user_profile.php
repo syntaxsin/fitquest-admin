@@ -444,7 +444,7 @@
     <script src="../js/plugins.js"></script>
     <script src="../js/main.js"></script>
 
-    <script type="module" src="user_profile.bundle.js"></script> 
+    <script type="module" src="bundle/user_profile.bundle.js"></script> 
 </body>
 
 </html>

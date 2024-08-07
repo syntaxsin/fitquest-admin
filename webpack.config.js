@@ -9,10 +9,11 @@ module.exports = {
         user_profile: './src/user_profile.js',
         inactive_users: './src/inactive_users.js',
         rewards_archive: './src/rewards_archives.js',
-        super_admin: './src/super_admin.js'
+        super_admin: './src/super_admin.js',
+        push_notif: './src/admin_pushnotif.js'
     },
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'dist/bundle'),
         filename: '[name].bundle.js'
     },
     watch: true

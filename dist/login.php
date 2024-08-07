@@ -74,6 +74,6 @@
             </form>
         </div>
     </div>
-    <script type="module" src="auth.bundle.js"></script>
+    <script type="module" src="bundle/auth.bundle.js"></script>
 </body>
 </html>

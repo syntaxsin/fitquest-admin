@@ -36,8 +36,7 @@ logoutButton.addEventListener('click', async () => {
         await signOut(auth);
         console.log('User signed out successfully');
         // Optionally, clear any stored user data
-        localStorage.removeItem('superAdmin');
-        sessionStorage.removeItem('superAdmin');
+        localStorage.removeItem('super_admin');
 
         window.location.href = '../index.php'; // Replace with your actual login page URL
     } catch (error) {
@@ -135,7 +134,7 @@ addAdminForm.addEventListener('submit', async (event) => {
 
         const addRewardPromises = defaultRewards.map(async (reward) => {
             const rewardId = await generateNextRewardId(); 
-            return setDoc(doc(rewardsCollection, rewardId), { ...reward, rewardId });
+            return setDoc(doc(rewardsCollection, rewardId), { ...reward });
         });
 
         await Promise.all(addRewardPromises)
