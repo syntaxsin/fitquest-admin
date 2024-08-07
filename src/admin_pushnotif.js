@@ -15,14 +15,14 @@ const firebaseConfig = {
 initializeApp(firebaseConfig)
 const messaging = getMessaging();
 
-function requestPermission() {
-    console.log('Requesting permission...');
-    Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-            console.log('Notification permission granted.');
-        }
-    })
-}
+// function requestPermission() {
+//     console.log('Requesting permission...');
+//     Notification.requestPermission().then((permission) => {
+//         if (permission === 'granted') {
+//             console.log('Notification permission granted.');
+//         }
+//     })
+// }
 
 navigator.serviceWorker.register("../src/sw.js").then(registration => {
     getToken(messaging, { 
@@ -41,7 +41,5 @@ navigator.serviceWorker.register("../src/sw.js").then(registration => {
         console.log('An error occurred while retrieving token. ', err);
         // ...
     });
-
-    
 })
 

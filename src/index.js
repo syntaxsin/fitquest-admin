@@ -275,9 +275,9 @@ onAuthStateChanged(auth, (user) => {
             });
     
             // Create empty 'claimed_rewards', 'pending_rewards' and 'weight_entries' subcollections
-            await setDoc(doc(newUserDocRef, 'claimed_rewards', 'initial_doc'), {}); 
-            await setDoc(doc(newUserDocRef, 'pending_rewards', 'initial_doc'), {});
+            await setDoc(doc(newUserDocRef, 'pending_rewards', 'initial_doc'), {}); 
             await setDoc(doc(newUserDocRef, 'weight_entries', 'initial_doc'), {});
+            await setDoc(doc(newUserDocRef, 'workout_logs', 'initial_doc'), {});
     
             // 6. Success message and form reset
             alert(`User added successfully with ID ${newUserId}!`);
