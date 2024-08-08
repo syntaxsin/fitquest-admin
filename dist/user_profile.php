@@ -190,137 +190,27 @@
     </header>
 
     <section id="user-profile">
-        <div class="row profile-content">
-            <div class="col-six tab-full profile-box">
-                <div class="profile-info">
-                    <br>
-                    <h2>Welcome Back,</h2><h2 id="userName"></h2>
-                    <p id="userEmail"></p>
-                    <p>Current Points: <span id="userPoints"></span></p>
-                    <button id="logout-button" class="button button-primary">Logout</button>
+    <div class="row profile-content">
+        <div class="col-six tab-full profile-box">
+            <div class="profile-info">
+                <br>
+                <h2>Welcome Back,</h2>
+                <h2 id="userName"></h2>
+                <p id="userEmail"></p>
+                <p>Current Points: <span id="userPoints"></span></p>
+                <p>Status: <span id="userStatus"></span></p>
+                <div>
+                    <h3>Weight Entries:</h3>
+                    <p>First Entry: <span id="firstWeightEntry"></span></p>
+                    <p>Last Entry: <span id="lastWeightEntry"></span></p>
                 </div>
+                <button id="logout-button" class="button button-primary">Logout</button>
             </div>
         </div>
-    </section>
-    
-    <section class="classes-section spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="section-title">
-                        <h2>GUIDES TO START YOUR FITNESS JOURNEY</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-4 col-md-6">
-                    <a href="https://www.healthline.com/nutrition/20-nutrition-tips-for-exercise" target="_blank" rel="noopener"> <div class="class-item">
-                        <div class="ci-pic">
-                            <img src="https://www.usatoday.com/gcdn/presto/2023/01/03/USAT/dba26ab9-095c-4e83-8962-150ae33e479c-GettyImages-1390699821.jpg?width=1200&disable=upscale&format=pjpg&auto=webp"alt="Nutrition" style="width: 70px; height: 150px;" >
-                        </div>
-                        <div class="ci-text">
-                            <span>FOOD</span>
-                            <h5>Fueling Your Body</h5>
-                            <p>Learn about balanced nutrition for optimal performance and recovery.</p>
-                        </div>
-                    </div></a>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <a href="https://www.nerdfitness.com/blog/beginner-body-weight-workout-burn-fat-build-muscle/" target="_blank" rel="noopener"> <div class="class-item">
-                        <div class="ci-pic">
-                            <img src="https://www.verywellfit.com/thmb/uujlEWPXdI1M3c55IwaF1oy9hNg=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/GettyImages-1264135982-fff92b3493274db4b4a220000287d39f.jpg" alt="Beginner Workout" style="width: 100px; height: 100px;">
-                        </div>
-                        <div class="ci-text">
-                            <span>BEGINNER</span>
-                            <h5>Starting Your Journey</h5>
-                            <p>Find beginner-friendly workouts and tips to build a foundation.</p>
-                        </div>
-                    </div></a>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <a href="https://www.healthline.com/health/fitness-exercise/strength-training-at-home" target="_blank" rel="noopener"><div class="class-item">
-                        <div class="ci-pic">
-                            <img src="images/strength-training.jpg" alt="Strength Training">
-                        </div>
-                        <div class="ci-text">
-                            <span>STRENGTH</span>
-                            <h5>Building Strength</h5>
-                            <p>Discover strength training routines to build muscle and power.</p>
-                        </div>
-                    </div></a>
-                </div>
-                <div class="col-lg-6 col-md-6">
-                    <a href="https://www.mayoclinic.org/healthy-lifestyle/fitness/in-depth/aerobic-exercise/art-20045541" target="_blank" rel="noopener"><div class="class-item">
-                        <div class="ci-pic">
-                            <img src="images/cardio.jpg" alt="Cardio">
-                        </div>
-                        <div class="ci-text">
-                            <span>CARDIO</span>
-                            <h5>Improving Endurance</h5>
-                            <p>Explore cardio exercises for heart health and stamina.</p>
-                        </div>
-                    </div></a>
-                </div>
-                <div class="col-lg-6">
-                    <a href="https://www.helpguide.org/articles/stress/relaxation-techniques-for-stress-relief.htm" target="_blank" rel="noopener"><div class="class-item">
-                        <div class="ci-pic">
-                            <img src="images/mindfulness.jpg" alt="Mindfulness">
-                        </div>
-                        <div class="ci-text">
-                            <span>WELLNESS</span>
-                            <h5>Mind-Body Connection</h5>
-                            <p>Learn about mindfulness and stress reduction techniques.</p>
-                        </div>
-                    </div></a>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    
-    <!-- ChoseUs Section End -->
+    </div>
+</section>
 
-    <!-- <section class="choseus-section spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="section-title">
-
-                        <h2>BOOST YOUR FITNESS JOURNEY</h2> </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3 col-sm-6">
-                    <div class="cs-item">
-                        <span class="flaticon-034-stationary-bike"></span> 
-                        <h4>Personalized Workouts</h4> 
-                        <p>Tailored to your fitness goals and level.</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-sm-6">
-                    <div class="cs-item">
-                        <span class="flaticon-033-juice"></span> 
-                        <h4>Track Your Progress</h4> 
-                        <p>Monitor your workouts and achievements.</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-sm-6">
-                    <div class="cs-item">
-                        <span class="flaticon-002-dumbell"></span> 
-                        <h4>Rewarding Challenges</h4>
-                        <p>Earn points and unlock rewards for staying active.</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-sm-6">
-                    <div class="cs-item">
-                        <span class="flaticon-014-heart-beat"></span> 
-                        <h4>Community Support</h4>
-                        <p>Connect with fellow fitness enthusiasts.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section> -->
+    
     
     <footer>
 

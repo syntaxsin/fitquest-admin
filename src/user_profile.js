@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app"
 import {
     getFirestore, collection, onSnapshot,
     addDoc, deleteDoc, doc, getDocs,
-    query, where,
+    query, where, limit,
     orderBy, serverTimestamp,
     getDoc, updateDoc, setDoc
 } from 'firebase/firestore'
@@ -50,44 +50,74 @@ const userQuery = query(userRef, orderBy('createdAt'))
 //     console.log(users)
 // })
 
+// Get references to HTML elements
 const userNameElement = document.getElementById('userName');
 const userEmailElement = document.getElementById('userEmail');
-const userPointsElement = document.getElementById('userPoints');
+const userPointsElement   
+ = document.getElementById('userPoints');
+const userStatusElement = document.getElementById('userStatus');
+const firstWeightEntryElement = document.getElementById('firstWeightEntry');
+const lastWeightEntryElement = document.getElementById('lastWeightEntry');
 
-// Function to display user data (modified)
-function displayUserData(user) { 
+// Function to display user data (including weight entries)
+function displayUserData(user) {
     if (user) {
         const gymId = localStorage.getItem('gymId');
 
         if (gymId) {
             const gymDocRef = doc(db, 'Gym', gymId);
             const membersCollection = collection(gymDocRef, 'Members');
-            const userQuery = query(membersCollection, where('Email', '==', user.email), where('Status', '==', 'Active User'));
+            const userQuery = query(membersCollection, where('Email', '==', user.email));
 
-            getDocs(userQuery) // Use getDocs here instead of onSnapshot
-                .then((userSnapshot) => {
-                    if (!userSnapshot.empty) {
-                        const userData = userSnapshot.docs[0].data();
-                        userNameElement.textContent = userData.FirstName;
-                        userEmailElement.textContent = userData.Email;
-                        userPointsElement.textContent = userData.Points || 0;
-                    } else {
-                        console.log("User not found in this gym or is not an 'Active User'");
-                        // Handle the case where the user is not found or not active
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error fetching user data:", error);
-                });
+            getDocs(userQuery).then((userSnapshot) => {
+                if (!userSnapshot.empty) {
+                    const userData = userSnapshot.docs[0].data();
+                    userNameElement.textContent = userData.FirstName;
+                    userEmailElement.textContent = userData.Email;
+                    userPointsElement.textContent = userData.Points || 0;
+                    userStatusElement.textContent = userData.Status || "Unknown";
+
+                    const userId = userSnapshot.docs[0].id;
+                    const weightEntriesRef = collection(db, 'Gym', gymId, 'Members', userId, 'weight_entries');
+
+                    // Query for the first weight entry
+                    const firstEntryQuery = query(weightEntriesRef, orderBy('date'), limit(1));
+                    getDocs(firstEntryQuery).then((firstEntrySnapshot) => {
+                        if (!firstEntrySnapshot.empty) {
+                            const firstEntryData = firstEntrySnapshot.docs[0].data();
+                            const firstEntryDate = firstEntryData.date.toDate();
+                            firstWeightEntryElement.textContent = `${firstEntryData.weight} kg on ${firstEntryDate.toLocaleDateString()}`;
+                        } else {
+                            firstWeightEntryElement.textContent = "No weight entries yet";
+                        }
+                    });
+
+                    // Query for the last weight entry
+                    const lastEntryQuery = query(weightEntriesRef, orderBy('date', 'desc'), limit(1));
+                    getDocs(lastEntryQuery).then((lastEntrySnapshot) => {
+                        if (!lastEntrySnapshot.empty) {
+                            const lastEntryData = lastEntrySnapshot.docs[0].data();
+                            const lastEntryDate = lastEntryData.date.toDate();
+                            lastWeightEntryElement.textContent = `${lastEntryData.weight} kg on ${lastEntryDate.toLocaleDateString()}`;
+                        } else {
+                            lastWeightEntryElement.textContent = "No weight entries yet";
+                        }
+                    });
+                } else {
+                    console.log("User not found in this gym.");
+                }
+            }).catch((error) => {
+                console.error("Error fetching user data:", error);
+            });
         } else {
             console.log("Gym ID not found in localStorage");
-            // Handle the case where gymId is missing
         }
     } else {
         console.log("User not authenticated. Redirecting to login...");
         window.location.href = 'login.php';
     }
 }
+
 
 // Use onAuthStateChanged to ensure the user is authenticated before fetching data
 onAuthStateChanged(auth, (user) => {
