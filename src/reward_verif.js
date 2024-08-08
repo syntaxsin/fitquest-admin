@@ -167,40 +167,44 @@ $('#verifyRewardModal').on('click', '.verify-claim-btn', async function () {
             const rewardDoc = await getDoc(rewardDocRef);
             const rewardData = rewardDoc.data();
 
-            await updateDoc(rewardDocRef, {
-                status: 'claimed'
+            await runTransaction(db, async (transaction) => {
+                const userDoc = await transaction.get(userDocRef);
+                const userData = userDoc.data();
+
+                const newPoints = userData.Points - rewardData.requiredPoints;
+                if (newPoints < 0) {
+                    throw new Error("User does not have enough points to claim this reward.");
+                }
+                transaction.update(userDocRef, { Points: newPoints });
+
+                const claimedRewardsCollection = collection(userDocRef, 'claimed_rewards');
+                // Generate the timestamp in the desired format
+                const now = new Date();
+                const options = {
+                    year: 'numeric', month: 'long', day: 'numeric',
+                    hour: 'numeric', minute: 'numeric', second: 'numeric',
+                    timeZone: 'Asia/Manila', // Set timezone to UTC+8
+                    timeZoneName: 'short'
+                };
+                const formattedTimestamp = now.toLocaleString('en-US', options);
+                // Create a new document with the formatted timestamp as the ID
+                const newRewardRef = doc(claimedRewardsCollection, formattedTimestamp); // Use formattedTimestamp as the document ID
+
+                transaction.set(newRewardRef, {
+                    ...rewardData,
+                    status: 'claimed',
+                    createdAt: serverTimestamp()
+                });
+
+                transaction.delete(rewardDocRef);
             });
+
             $(this).closest('li').remove();
             alert(`Reward ${rewardId} for user ${currentUserIdForModal} marked as claimed.`);
-
-            // Update the corresponding Claimable Rewards subcollection
-            const rewardsCollection = collection(gymDocRef, 'Rewards');
-            const rewardDocRefRewards = doc(rewardsCollection, rewardId);
-            const rewardSnapshot = await getDoc(rewardDocRefRewards);
-            const rewardDataRewards = rewardSnapshot.data();
-
-            if (rewardSnapshot.exists()) {
-                const claimableRewardsSubCollection = collection(userDocRef, 'Claimable Rewards');
-
-                const rewardInClaimableRewards = await getDocs(query(claimableRewardsSubCollection, where('rewardId', '==', rewardId)));
-                if (rewardInClaimableRewards.empty) {
-                    await addDoc(claimableRewardsSubCollection, {
-                        rewardId: rewardId,
-                        rewardName: rewardData.rewardName,
-                        rewardDescription: rewardData.rewardDescription,
-                        requiredPoints: rewardData.requiredPoints,
-                        status: "claimed"
-                    });
-                } else {
-                    rewardInClaimableRewards.forEach(async (doc) => {
-                        await updateDoc(doc.ref, { status: "claimed" });
-                    });
-                }
-            }
             displayPendingRewards();
         } catch (error) {
             console.error("Error updating reward status:", error);
-            // Handle the error appropriately
+            alert(error.message);
         }
     }
 });

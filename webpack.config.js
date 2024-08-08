@@ -10,7 +10,6 @@ module.exports = {
         inactive_users: './src/inactive_users.js',
         rewards_archive: './src/rewards_archives.js',
         super_admin: './src/super_admin.js',
-        push_notif: './src/admin_pushnotif.js',
         reward_verif: './src/reward_verif.js',
     },
     output: {

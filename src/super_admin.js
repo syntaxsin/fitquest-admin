@@ -214,7 +214,6 @@ function openEditAdminModal(gymId, memberId) {
 }
 
 // Deactivate Admin Function
-// const deactivateAdminForm = document.getElementById("deleteAdminModal");
 const confirmDeactivateButton = document.getElementById("confirm-delete");
 confirmDeactivateButton.addEventListener('click', async (event) => {
     event.preventDefault();
@@ -224,50 +223,16 @@ confirmDeactivateButton.addEventListener('click', async (event) => {
 
     const gymCollectionName = `GYM${gymId}`;
     const gymDocRef = doc(db, 'Gym', gymCollectionName);
-    const adminDocRef = doc(gymDocRef, 'Members', memberId);
+    const adminDocRef = doc(gymDocRef, 'Members', memberId); // Reference to the specific admin document
 
     try {
-        // 1. Get the Gym document data
-        const gymDoc = await getDoc(gymDocRef);
-        const gymData = gymDoc.data();
-
-        // 2. Create 'deactivated_admins' collection if it doesn't exist
-        const deactivatedAdminsCollection = collection(db, 'deactivated_admins');
-        const deactivatedGymDocRef = doc(deactivatedAdminsCollection, gymCollectionName);
-
-        await runTransaction(db, async (transaction) => {
-        // 3. Copy the Gym document data to 'deactivated_admins'
-        transaction.set(deactivatedGymDocRef, gymData);
-
-        // 4. Copy the 'Members' subcollection documents 
-        const membersCollection = collection(gymDocRef, 'Members');
-        const membersSnapshot = await getDocs(membersCollection);
-        const deactivatedMembersCollection = collection(deactivatedGymDocRef, 'Members');
-        membersSnapshot.forEach(memberDoc => {
-            // Update the admin's status to 'Deactivated' if it matches the memberId
-            const memberData = memberDoc.data();
-            if (memberDoc.id === memberId) {
-            memberData.Status = 'Deactivated';
-            }
-            transaction.set(doc(deactivatedMembersCollection, memberDoc.id), memberData);
-        });
-
-        // 5. Copy the 'Rewards' subcollection documents
-        const rewardsCollection = collection(gymDocRef, 'Rewards');
-        const rewardsSnapshot = await getDocs(rewardsCollection);
-        const deactivatedRewardsCollection = collection(deactivatedGymDocRef, 'Rewards');
-        rewardsSnapshot.forEach(rewardDoc => {
-            transaction.set(doc(deactivatedRewardsCollection, rewardDoc.id), rewardDoc.data());
-        });
-
-        // 6. Delete the Gym document and its subcollections
-        transaction.delete(gymDocRef);
-        });
+        // Update the admin's status to 'Deactivated'
+        await updateDoc(adminDocRef, { Status: 'Deactivated' });
 
         $('#deleteAdminModal').modal('hide');
 
         alert(`Admin ${memberId} from gym ${gymId} has been deactivated.`);
-        displayAdmins();
+        displayAdmins(); // Refresh the admin list to reflect the change
 
     } catch (error) {
         console.error('Error deactivating admin:', error);
@@ -356,60 +321,60 @@ function displayAdmins() {
 }
 displayAdmins();
 
-async function displayDeactivatedAdmins() {
-    const deactAdminList = document.querySelector("#deact-list tbody"); 
-    deactAdminList.innerHTML = ""; 
+// async function displayDeactivatedAdmins() {
+//     const deactAdminList = document.querySelector("#deact-list tbody"); 
+//     deactAdminList.innerHTML = ""; 
 
-    const deactivatedAdminsCollection = collection(db, 'deactivated_admins');
-    const deactivatedGymDocRef = doc(deactivatedAdminsCollection, gymCollectionName);
+//     const deactivatedAdminsCollection = collection(db, 'deactivated_admins');
+//     const deactivatedGymDocRef = doc(deactivatedAdminsCollection, gymCollectionName);
   
-    try {
-        // 1. Fetch all deactivated gyms from 'deactivated_admins'
-        const deactivatedAdminsCollection = collection(db, 'deactivated_admins');
-        const deactivatedGymsSnapshot = await getDocs(deactivatedAdminsCollection);
+//     try {
+//         // 1. Fetch all deactivated gyms from 'deactivated_admins'
+//         const deactivatedAdminsCollection = collection(db, 'deactivated_admins');
+//         const deactivatedGymsSnapshot = await getDocs(deactivatedAdminsCollection);
     
-        deactivatedGymsSnapshot.forEach(async (deactivatedGymDoc) => {
-            const deactivatedGymData = deactivatedGymDoc.data();
+//         deactivatedGymsSnapshot.forEach(async (deactivatedGymDoc) => {
+//             const deactivatedGymData = deactivatedGymDoc.data();
             
-            // 2. Get 'Members' subcollection within the deactivated gym
-            const deactivatedMembersCollection = collection(deactivatedGymDocRef, 'Members');
-            const deactivatedMembersSnapshot = await getDocs(deactivatedMembersCollection);
+//             // 2. Get 'Members' subcollection within the deactivated gym
+//             const deactivatedMembersCollection = collection(deactivatedGymDocRef, 'Members');
+//             const deactivatedMembersSnapshot = await getDocs(deactivatedMembersCollection);
     
-            // 3. Find the deactivated admin within the 'Members' subcollection
-            const deactivatedAdminDoc = deactivatedMembersSnapshot.docs.find(
-            doc => doc.data().Status === 'Deactivated'
-            );
+//             // 3. Find the deactivated admin within the 'Members' subcollection
+//             const deactivatedAdminDoc = deactivatedMembersSnapshot.docs.find(
+//             doc => doc.data().Status === 'Deactivated'
+//             );
     
-            if (deactivatedAdminDoc) {
-            const deactivatedAdminData = deactivatedAdminDoc.data();
+//             if (deactivatedAdminDoc) {
+//             const deactivatedAdminData = deactivatedAdminDoc.data();
     
-            // 4. Create a new row for the deactivated admin
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td>${deactivatedAdminData.id}</td> 
-                <td>${deactivatedGymData.Name}</td>
-                <td>${deactivatedGymData.Location}</td>
-                <td>${deactivatedAdminData.Status}</td>
-                <td>
-                <button class="btn btn-secondary-custom reactivate-button" 
-                        data-gym-id="${deactivatedGymDoc.id}" 
-                        data-member-id="${deactivatedAdminData.id}">
-                    <i class="fas fa-power-off"></i> 
-                </button>
-                </td>
-            `;
-            deactAdminList.appendChild(newRow);
+//             // 4. Create a new row for the deactivated admin
+//             const newRow = document.createElement('tr');
+//             newRow.innerHTML = `
+//                 <td>${deactivatedAdminData.id}</td> 
+//                 <td>${deactivatedGymData.Name}</td>
+//                 <td>${deactivatedGymData.Location}</td>
+//                 <td>${deactivatedAdminData.Status}</td>
+//                 <td>
+//                 <button class="btn btn-secondary-custom reactivate-button" 
+//                         data-gym-id="${deactivatedGymDoc.id}" 
+//                         data-member-id="${deactivatedAdminData.id}">
+//                     <i class="fas fa-power-off"></i> 
+//                 </button>
+//                 </td>
+//             `;
+//             deactAdminList.appendChild(newRow);
     
-            // 5. Attach event listener to the reactivate button (implementation needed)
-            const reactivateButton = newRow.querySelector('.reactivate-button');
-            reactivateButton.addEventListener('click', () => {
-                // You'll need to implement the reactivation logic here
-                console.log("Reactivate button clicked for:", deactivatedGymDoc.id, deactivatedAdminData.id);
-            });
-            }
-        });
-    } catch (error) {
-      console.error("Error displaying deactivated admins:", error);
-      // Handle the error appropriately
-    }
-  }
+//             // 5. Attach event listener to the reactivate button (implementation needed)
+//             const reactivateButton = newRow.querySelector('.reactivate-button');
+//             reactivateButton.addEventListener('click', () => {
+//                 // You'll need to implement the reactivation logic here
+//                 console.log("Reactivate button clicked for:", deactivatedGymDoc.id, deactivatedAdminData.id);
+//             });
+//             }
+//         });
+//     } catch (error) {
+//       console.error("Error displaying deactivated admins:", error);
+//       // Handle the error appropriately
+//     }
+//   }

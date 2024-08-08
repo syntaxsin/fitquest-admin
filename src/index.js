@@ -4,7 +4,7 @@ import {
     addDoc, deleteDoc, doc, getDocs,
     query, where, runTransaction,
     orderBy, serverTimestamp,
-    getDoc, updateDoc,setDoc
+    getDoc, updateDoc, setDoc
 } from 'firebase/firestore'
 import {
     getAuth, deleteUser,
@@ -12,7 +12,7 @@ import {
     signOut, signInWithEmailAndPassword,
     onAuthStateChanged
 } from 'firebase/auth'
-import { getFunctions, httpsCallable} from 'firebase/functions'
+import { getFunctions, httpsCallable } from 'firebase/functions'
 
 const firebaseConfig = {
     apiKey: "AIzaSyBxEwY413QHRNSRv6_38Odi9wfWWJg249I",
@@ -35,6 +35,51 @@ const gymId = localStorage.getItem('gymId');
 // Reference to the Gym document
 const gymDocRef = doc(db, 'Gym', gymId);
 
+async function displayDashboardCounts() {
+    try {
+        // Get gym data from localStorage
+        const gymId = localStorage.getItem('gymId');
+
+        if (!gymId) {
+            console.error("Gym ID not found in localStorage");
+            return;
+        }
+
+        const gymDocRef = doc(db, 'Gym', gymId);
+
+        // Fetch and display user count
+        const usersCollection = collection(gymDocRef, 'Members');
+        const activeUsersQuery = query(usersCollection, where("Status", "==", "Active User"));
+        const activeUsersSnapshot = await getDocs(activeUsersQuery);
+        document.querySelector('.card:nth-child(1) .card-text').textContent = activeUsersSnapshot.size;
+
+        // Fetch and display deactivated users count
+        const deactivatedUsersQuery = query(usersCollection, where("Status", "==", "Deactivated"));
+        const deactivatedUsersSnapshot = await getDocs(deactivatedUsersQuery);
+        document.querySelector('.card:nth-child(3) .card-text').textContent = deactivatedUsersSnapshot.size;
+
+        // Fetch and display reward count
+        const rewardsCollection = collection(gymDocRef, 'Rewards');
+        const rewardsSnapshot = await getDocs(rewardsCollection);
+        document.querySelector('.card:nth-child(2) .card-text').textContent = rewardsSnapshot.size;
+
+        // Set up real-time updates using onSnapshot (optional)
+        onSnapshot(activeUsersQuery, (snapshot) => {
+            document.querySelector('.card:nth-child(1) .card-text').textContent = snapshot.size;
+        });
+        onSnapshot(deactivatedUsersQuery, (snapshot) => {
+            document.querySelector('.card:nth-child(3) .card-text').textContent = snapshot.size;
+        });
+        onSnapshot(rewardsCollection, (snapshot) => {
+            document.querySelector('.card:nth-child(2) .card-text').textContent = snapshot.size;
+        });
+
+    } catch (error) {
+        console.error("Error fetching dashboard counts:", error);
+        // Handle error (e.g., show error message)
+    }
+}
+
 async function displayActiveMembers() {
     const userList = document.querySelector("#user-list tbody");
     userList.innerHTML = ''; // Clear existing data
@@ -49,7 +94,7 @@ async function displayActiveMembers() {
         const membersCollection = collection(gymDocRef, 'Members');
         const activeMembersQuery = query(membersCollection, where("Status", "==", "Active User"));
 
-        onSnapshot(activeMembersQuery, (snapshot) => { 
+        onSnapshot(activeMembersQuery, (snapshot) => {
             snapshot.docChanges().forEach((change) => {
                 if (change.type === "added" || change.type === "modified") {
                     const memberDoc = change.doc;
@@ -92,7 +137,7 @@ async function displayActiveMembers() {
                         // Implement your deactivate user logic here
                         console.log("Deactivate button clicked for user:", memberDoc.id);
                     });
-                } 
+                }
             });
         });
     } catch (error) {
@@ -119,14 +164,14 @@ async function displayClaimableRewards() {
         onSnapshot(claimableRewardsQuery, (snapshot) => {
             snapshot.docChanges().forEach((change) => {
                 if (change.type === "added" || change.type === "modified") {
-                    const rewardDoc = change.doc; 
+                    const rewardDoc = change.doc;
                     const rewardData = rewardDoc.data();
 
                     // Create unique row ID
                     const rowId = `reward-${rewardDoc.id}`;
                     const existingRow = document.getElementById(rowId);
                     if (existingRow) {
-                        existingRow.remove(); 
+                        existingRow.remove();
                     }
 
                     const newRow = rewardsList.insertRow();
@@ -154,18 +199,18 @@ async function displayClaimableRewards() {
                             // 1. Fetch the reward document
                             const rewardDocRef = doc(rewardsCollection, rewardDoc.id);
                             const rewardSnapshot = await getDoc(rewardDocRef);
-                    
+
                             if (rewardSnapshot.exists()) {
                                 const existingRewardData = rewardSnapshot.data();
-                    
+
                                 // 2. Populate modal fields
                                 document.getElementById("reward_id").value = rewardDoc.id;
                                 document.getElementById("updateRewardName").value = existingRewardData.rewardName;
                                 document.getElementById("updateRewardDescription").value = existingRewardData.rewardDescription;
                                 document.getElementById("updateRequiredPoints").value = existingRewardData.requiredPoints;
-                    
+
                                 // 3. Show the modal
-                                $('#editRewardModal').modal('show'); 
+                                $('#editRewardModal').modal('show');
                             } else {
                                 console.log("Reward not found");
                                 // Handle the case where the reward document is not found
@@ -184,7 +229,7 @@ async function displayClaimableRewards() {
                         // Show the delete confirmation modal
                         $('#deleteRewardModal').modal('show');
                     });
-                } 
+                }
             });
         });
     } catch (error) {
@@ -194,7 +239,7 @@ async function displayClaimableRewards() {
 }
 
 //delete reward function
-async function deleteReward(rewardId) { 
+async function deleteReward(rewardId) {
     try {
         // 1. Get the gymId from localStorage
         const gymId = localStorage.getItem('gymId');
@@ -210,7 +255,7 @@ async function deleteReward(rewardId) {
         await deleteDoc(rewardDocRef);
 
         // 4. Close the modal and show success message 
-        $('#deleteRewardModal').modal('hide'); 
+        $('#deleteRewardModal').modal('hide');
         alert('Reward deleted successfully');
 
         // 5. Refresh the rewards list
@@ -224,77 +269,79 @@ async function deleteReward(rewardId) {
 onAuthStateChanged(auth, (user) => {
     if (user && localStorage.getItem('userType') === 'admin') {
         // User is signed in and is an admin
-        
+
         const gymId = localStorage.getItem('gymId');
         const gymDocRef = doc(db, 'Gym', gymId);
-    
+
+        displayDashboardCounts();
+
         // Add User Form Submission (moved inside onAuthStateChanged)
         const addUserForm = document.getElementById('add-user-form');
         addUserForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-    
+
             const email = document.getElementById('new-email').value;
             const firstName = document.getElementById('new-fname').value;
             const lastName = document.getElementById('new-lname').value;
-            const password = document.getElementById('new-password').value; 
-            const status = 'Active User';  
-            const points = 0; 
-    
+            const password = document.getElementById('new-password').value;
+            const status = 'Active User';
+            const points = 0;
+
             try {
-            // 1. Create User in Firebase Authentication
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            console.log('User Created in Firebase Auth:', userCredential);
-    
-            // 2. Get the 'Members' subcollection
-            const membersCollection = collection(gymDocRef, 'Members');
-    
-            // 3. Get existing user IDs to generate the next ID
-            const membersSnapshot = await getDocs(membersCollection);
-            const existingMemberIds = membersSnapshot.docs.map(doc => doc.id);
-    
-            // 4. Generate the next available user ID (U00# format)
-            function generateNextId(existingIds) {
-                const prefix = "U";
-                const maxId = existingIds
-                    .filter(id => id.startsWith(prefix))
-                    .map(id => parseInt(id.replace(prefix, ''), 10))
-                    .reduce((max, current) => Math.max(max, current), 0);
-                return `${prefix}${String(maxId + 1).padStart(3, '0')}`;
-            }
-            const newUserId = generateNextId(existingMemberIds);
-    
-            // 5. Create the new user document with subcollections
-            const newUserDocRef = doc(membersCollection, newUserId);
-            await setDoc(newUserDocRef, {
-                Email: email,
-                FirstName: firstName,
-                LastName: lastName,
-                Status: status,
-                points: points,
-                createdAt: serverTimestamp()
-            });
-    
-            // Create empty 'claimed_rewards', 'pending_rewards' and 'weight_entries' subcollections
-            await setDoc(doc(newUserDocRef, 'pending_rewards', 'initial_doc'), {}); 
-            await setDoc(doc(newUserDocRef, 'weight_entries', 'initial_doc'), {});
-            await setDoc(doc(newUserDocRef, 'workout_logs', 'initial_doc'), {});
-    
-            // 6. Success message and form reset
-            alert(`User added successfully with ID ${newUserId}!`);
-            addUserForm.reset();
-    
-            // 7. Refresh the active members list 
-            displayActiveMembers();
+                // 1. Create User in Firebase Authentication
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                console.log('User Created in Firebase Auth:', userCredential);
+
+                // 2. Get the 'Members' subcollection
+                const membersCollection = collection(gymDocRef, 'Members');
+
+                // 3. Get existing user IDs to generate the next ID
+                const membersSnapshot = await getDocs(membersCollection);
+                const existingMemberIds = membersSnapshot.docs.map(doc => doc.id);
+
+                // 4. Generate the next available user ID (U00# format)
+                function generateNextId(existingIds) {
+                    const prefix = "U";
+                    const maxId = existingIds
+                        .filter(id => id.startsWith(prefix))
+                        .map(id => parseInt(id.replace(prefix, ''), 10))
+                        .reduce((max, current) => Math.max(max, current), 0);
+                    return `${prefix}${String(maxId + 1).padStart(3, '0')}`;
+                }
+                const newUserId = generateNextId(existingMemberIds);
+
+                // 5. Create the new user document with subcollections
+                const newUserDocRef = doc(membersCollection, newUserId);
+                await setDoc(newUserDocRef, {
+                    Email: email,
+                    FirstName: firstName,
+                    LastName: lastName,
+                    Status: status,
+                    points: points,
+                    createdAt: serverTimestamp()
+                });
+
+                // Create empty 'claimed_rewards', 'pending_rewards' and 'weight_entries' subcollections
+                await setDoc(doc(newUserDocRef, 'pending_rewards', 'initial_doc'), {});
+                await setDoc(doc(newUserDocRef, 'weight_entries', 'initial_doc'), {});
+                await setDoc(doc(newUserDocRef, 'workout_logs', 'initial_doc'), {});
+
+                // 6. Success message and form reset
+                alert(`User added successfully with ID ${newUserId}!`);
+                addUserForm.reset();
+
+                // 7. Refresh the active members list 
+                displayActiveMembers();
             } catch (error) {
-            console.error('Error adding user:', error);
-            alert('Failed to add user. Please check the console for details.');
+                console.error('Error adding user:', error);
+                alert('Failed to add user. Please check the console for details.');
             }
         });
-    
+
         const addRewardForm = document.getElementById("add-reward-form")
         addRewardForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const rewardName = document.getElementById('rewardName').value;
             const rewardDescription = document.getElementById('rewardDescription').value;
             const requiredPoints = parseInt(document.getElementById('requiredPoints').value);
@@ -303,7 +350,7 @@ onAuthStateChanged(auth, (user) => {
                 // 1. Get the gymId from localStorage
                 const gymId = localStorage.getItem('gymId');
                 if (!gymId) {
-                throw new Error("Gym ID not found in localStorage");
+                    throw new Error("Gym ID not found in localStorage");
                 }
 
                 // 2. Construct the gym document reference
@@ -318,23 +365,23 @@ onAuthStateChanged(auth, (user) => {
 
                 // 5. Generate the next available reward ID (RWD00# format)
                 function generateNextRewardId(existingIds) {
-                const prefix = "RWD";
-                const maxId = existingIds
-                    .filter(id => id.startsWith(prefix))
-                    .map(id => parseInt(id.replace(prefix, ''), 10))
-                    .reduce((max, current) => Math.max(max, current), 0);
-                return `${prefix}${String(maxId + 1).padStart(3, '0')}`;
+                    const prefix = "RWD";
+                    const maxId = existingIds
+                        .filter(id => id.startsWith(prefix))
+                        .map(id => parseInt(id.replace(prefix, ''), 10))
+                        .reduce((max, current) => Math.max(max, current), 0);
+                    return `${prefix}${String(maxId + 1).padStart(3, '0')}`;
                 }
                 const newRewardId = generateNextRewardId(existingRewardIds);
 
                 // 6. Create the new reward document within the 'Rewards' subcollection
                 await setDoc(doc(rewardsCollection, newRewardId), {
-                rewardId: newRewardId,
-                rewardName: rewardName,
-                rewardDescription: rewardDescription,
-                requiredPoints: requiredPoints,
-                status: 'Claimable',
-                createdAt: serverTimestamp()
+                    rewardId: newRewardId,
+                    rewardName: rewardName,
+                    rewardDescription: rewardDescription,
+                    requiredPoints: requiredPoints,
+                    status: 'Claimable',
+                    createdAt: serverTimestamp()
                 });
 
                 // 7. Success message and form reset
@@ -354,8 +401,8 @@ onAuthStateChanged(auth, (user) => {
         updateRewardForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const rewardId = document.getElementById("reward_id").value; 
-            const newRewardName = document.getElementById("updateRewardName").value; 
+            const rewardId = document.getElementById("reward_id").value;
+            const newRewardName = document.getElementById("updateRewardName").value;
             const newRewardDescription = document.getElementById("updateRewardDescription").value;
             const newRequiredPoints = parseInt(document.getElementById("updateRequiredPoints").value);
 
@@ -384,7 +431,7 @@ onAuthStateChanged(auth, (user) => {
                 });
 
                 // 6. Close the modal and show success message
-                $('#editRewardModal').modal('hide'); 
+                $('#editRewardModal').modal('hide');
                 alert('Reward updated successfully');
 
                 // 7. Refresh the rewards list (optional)
@@ -400,7 +447,7 @@ onAuthStateChanged(auth, (user) => {
             const rewardIdToDelete = document.getElementById('delete-reward-id').value;
             deleteReward(rewardIdToDelete);
         });
-        
+
         // Call the functions to fetch and display data
         displayActiveMembers();
         displayClaimableRewards();
