@@ -35,6 +35,8 @@ const userStatusElement = document.getElementById('userStatus');
 const firstWeightEntryElement = document.getElementById('firstWeightEntry');
 const lastWeightEntryElement = document.getElementById('lastWeightEntry');
 const pendingRewardsList = document.getElementById('pendingRewardsList'); 
+const announcementsContent = document.getElementById('announcementsContent');
+const blogsContent = document.getElementById('blogsContent');
 
 // Function to display user data (including weight entries and pending rewards)
 function displayUserData(user) {
@@ -67,6 +69,9 @@ function displayUserData(user) {
                         } else {
                             firstWeightEntryElement.textContent = "No weight entries yet";
                         }
+                    }).catch((error) => {
+                        console.error("Error fetching first weight entry:", error);
+                        firstWeightEntryElement.textContent = "Error fetching weight entry"; 
                     });
 
                     // Query for the last weight entry
@@ -79,8 +84,10 @@ function displayUserData(user) {
                         } else {
                             lastWeightEntryElement.textContent = "No weight entries yet";
                         }
+                    }).catch((error) => {
+                        console.error("Error fetching last weight entry:", error);
+                        lastWeightEntryElement.textContent = "Error fetching weight entry"; 
                     });
-
 
                     // Fetch and display pending rewards
                     const pendingRewardsRef = collection(db, 'Gym', gymId, 'Members', userId, 'pending_rewards');
@@ -103,7 +110,18 @@ function displayUserData(user) {
                         }
                     }).catch((error) => {
                         console.error("Error fetching pending rewards:", error);
+                        pendingRewardsList.innerHTML = ''; // Clear the list in case of an error
+                        const listItem = document.createElement('li');
+                        listItem.textContent = "Error fetching pending rewards";
+                        pendingRewardsList.appendChild(listItem);
                     }); 
+
+                    // Fetch and display announcements
+                    fetchAndDisplayAnnouncements(gymId);
+
+                    // Fetch and display blogs
+                    fetchAndDisplayBlogs(gymId);
+
                 } else {
                     console.log("User not found in this gym.");
                 }
@@ -119,12 +137,75 @@ function displayUserData(user) {
     }
 }
 
+// Function to fetch and display announcements
+function fetchAndDisplayAnnouncements(gymId) {
+    // Assuming you have an 'Announcements' collection under the 'Gym' document
+    const announcementsRef = collection(db, 'Gym', gymId, 'Announcements'); 
+
+    getDocs(announcementsRef)
+        .then((announcementsSnapshot) => {
+            announcementsContent.innerHTML = ''; 
+
+            if (!announcementsSnapshot.empty) {
+                for (const doc of announcementsSnapshot.docs) {
+                    const announcementData = doc.data();
+
+                    // Create HTML elements to display the announcement
+                    const announcementElement = document.createElement('div');
+                    announcementElement.innerHTML = `
+                        <h3>${announcementData.title}</h3> 
+                        <p>${announcementData.content}</p>
+                        <p>Posted on: ${announcementData.createdAt.toDate().toLocaleDateString()}</p> 
+                    `; 
+                    announcementsContent.appendChild(announcementElement);
+                }
+            } else {
+                announcementsContent.innerHTML = "<p>No announcements yet.</p>";
+            }
+        })
+        .catch((error) => {
+            console.error("Error fetching announcements:", error);
+            announcementsContent.innerHTML = "<p>Error fetching announcements.</p>";
+        });
+}
+
+// Function to fetch and display blogs
+function fetchAndDisplayBlogs(gymId) {
+    // Assuming you have a 'BlogPosts' collection under the 'Gym' document
+    const blogsRef = collection(db, 'Gym', gymId, 'BlogPosts'); 
+  
+    getDocs(blogsRef)
+      .then((blogsSnapshot) => {
+        blogsContent.innerHTML = ''; 
+  
+        if (!blogsSnapshot.empty) {
+          for (const doc of blogsSnapshot.docs) {
+            const blogData = doc.data();
+  
+            const blogElement = document.createElement('div');
+            blogElement.innerHTML = `
+              <h3>${blogData.title}</h3> 
+              <p>By: ${blogData.author}</p>
+              <p>${blogData.content}</p>
+              <p>Posted on: ${blogData.createdAt.toDate().toLocaleDateString()}</p> 
+            `; 
+            blogsContent.appendChild(blogElement);
+          }
+        } else {
+          blogsContent.innerHTML = "<p>No blogs yet.</p>";
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching blogs:", error);
+        blogsContent.innerHTML = "<p>Error fetching blogs.</p>";
+      });
+  }
+  
 
 // Use onAuthStateChanged to ensure the user is authenticated before fetching data
 onAuthStateChanged(auth, (user) => {
     displayUserData(user);
 });
-
 
 const logOut = document.getElementById('logout-button');
 logOut.addEventListener('click', () => {
