@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FitQuest | Admin</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" 
-    integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" 
-    integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script>
         // Check user type and gym information
         const userType = localStorage.getItem('userType');
@@ -15,7 +14,7 @@
 
         if (userType !== 'admin' || !gymId) {
             // Redirect to login if not an admin or gym information is missing
-            window.location.href = 'login.php'; 
+            window.location.href = 'login.php';
         }
     </script>
     <style>
@@ -24,53 +23,68 @@
             background-color: #F0ECE5;
             color: #333333;
         }
+
         .navbar {
             background-color: #161A30;
         }
-        .navbar-brand, .navbar-nav .nav-link {
+
+        .navbar-brand,
+        .navbar-nav .nav-link {
             color: white;
-            font-size: 20px;
+            font-size: 18px;
+            padding: 5px 8px;
         }
+
         .main-content {
             width: auto;
             padding: 1rem;
         }
+
         .btn-primary-custom {
             background: #161A30;
             color: white;
             width: 250px;
         }
+
         .btn-primary-custom:hover {
             background: #B6BBC4;
             color: #161A30;
         }
+
         .btn-secondary-custom {
             background: #161A30;
             color: white;
         }
+
         .btn-secondary-custom:hover {
             background: #B6BBC4;
             color: #161A30;
         }
+
         .table th {
             background-color: #161A30;
             color: white;
         }
-        .div-cards{
+
+        .div-cards {
             display: flex;
         }
-        .card{
+
+        .card {
             background: #B6BBC4;
         }
-        .add-reward-btn, .add-user-btn{
+
+        .add-reward-btn,
+        .add-user-btn {
             padding: 45px 160px;
         }
     </style>
 </head>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark px-5">
-        <a class="navbar-brand" href="#" style="font-size: 30px;">Fit<span style="color: #315abb;">Quest</span> <span style="color: #9999; font-size: 20px;">| Administrator</span></a>
+        <a class="navbar-brand" href="#" style="font-size: 28px;">Fit<span style="color: #315abb;">Quest</span> <span style="color: #9999; font-size: 20px;">| Administrator</span></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -78,20 +92,20 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav ml-auto mr-5">
                 <li class="nav-item">
-                    <a class="nav-link active" href="#" style="font-size: 20px;">Home</a>
+                    <a class="nav-link active" href="#">Dashboard</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" style="font-size: 20px;" data-toggle="modal" data-target="#">Manage Points</a>
+                    <a class="nav-link" href="#">Inactive Users</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" style="font-size: 20px;">Inactive Users</a>
+                    <a class="nav-link" href="admin_verification.php">Verify Rewards</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="admin_verification.php" style="font-size: 20px;">Verify Rewards</a>
+                    <a class="nav-link" href="admin_cms.php">Content Management</a>
                 </li>
             </ul>
         </div>
-        <button class="btn btn-secondary-custom" id="logout" type="submit" style="font-size: 20px;">Logout</button>
+        <button class="btn btn-secondary-custom" id="logout" type="submit" style="font-size: 18px;">Logout</button>
     </nav>
 
     <div class="container-fluid main-content">
@@ -157,6 +171,34 @@
         </div>
     </div>
 
+    <!-- Manage Points Modal -->
+    <div class="modal fade" id="managePointsModal" tabindex="-1" aria-labelledby="managePointsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header" style="background: #161A30;">
+                    <h5 class="modal-title" id="managePointsModalLabel" style="color: #F0ECE5;">Manage Points</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0ECE5;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Member ID</th>
+                                <th>Name</th>
+                                <th>Points</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="points-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Add User Modal -->
     <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="addUserModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -187,6 +229,25 @@
                         </div>
                         <button type="submit" class="btn btn-primary-custom">Add New User</button>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deactivateUserModal" tabindex="-1" role="dialog" aria-labelledby="deactivateUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deactivateUserModalLabel">Confirm Deactivation</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to deactivate this user account?</p>
+                    <input type="hidden" id="deactivate-member-id">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirm-deactivate">Deactivate</button>
                 </div>
             </div>
         </div>
@@ -243,7 +304,7 @@
                             <label for="updateRewardDescription">Description</label>
                             <input type="text" class="form-control" id="updateRewardDescription" required>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="updateRequiredPoints">Required Points</label>
                             <input type="text" class="form-control" id="updateRequiredPoints" required>
@@ -259,7 +320,7 @@
     <div class="modal fade" id="deleteRewardModal" tabindex="-1" role="dialog" aria-labelledby="deleteRewardModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header" style="background: #161A30;">   
+                <div class="modal-header" style="background: #161A30;">  
 
                     <h5 class="modal-title" id="deleteRewardModalLabel" style="color: #F0ECE5;">Delete Reward</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0ECE5;">
@@ -274,10 +335,11 @@
             </div>
         </div>
     </div>
-   
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
     <script type="module" src="bundle/index.bundle.js"></script>
 </body>
+
 </html>

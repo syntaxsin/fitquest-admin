@@ -31,7 +31,8 @@
         .navbar-brand,
         .navbar-nav .nav-link {
             color: white;
-            font-size: 20px;
+            font-size: 18px;
+            padding: 5px 8px;
         }
 
         .main-content {
@@ -80,7 +81,7 @@
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark px-5">
-        <a class="navbar-brand" href="#" style="font-size: 30px;">Fit<span style="color: #315abb;">Quest</span> <span style="color: #9999; font-size: 20px;">| Administrator</span></a>
+        <a class="navbar-brand" href="#" style="font-size: 28px;">Fit<span style="color: #315abb;">Quest</span> <span style="color: #9999; font-size: 20px;">| Administrator</span></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -88,20 +89,20 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav ml-auto mr-5">
                 <li class="nav-item">
-                    <a class="nav-link" href="admin_index.php" style="font-size: 20px;">Home</a>
+                    <a class="nav-link" href="admin_index.php">Dashboard</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" style="font-size: 20px;" data-toggle="modal" data-target="#">Manage Points</a>
+                    <a class="nav-link" href="#">Inactive Users</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" style="font-size: 20px;">Inactive Users</a>
+                    <a class="nav-link active" href="admin_verification.php">Verify Rewards</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="admin_verification.php" style="font-size: 20px;">Verify Rewards</a>
+                    <a class="nav-link" href="admin_cms.php">Content Management</a>
                 </li>
             </ul>
         </div>
-        <button class="btn btn-secondary-custom" id="logout" type="submit" style="font-size: 20px;">Logout</button>
+        <button class="btn btn-secondary-custom" id="logout" type="submit" style="font-size: 18px;">Logout</button>
     </nav>
 
     <!-- Pending Rewards for the Users of the Gym -->
@@ -122,6 +123,34 @@
                 <div class="modal-body">
                     <p>Are you sure you want to verify the selected rewards for this user?</p>
                     <ul id="modalRewardList" class="list-group"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Points Modal -->
+    <div class="modal fade" id="managePointsModal" tabindex="-1" aria-labelledby="managePointsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header" style="background: #161A30;">
+                    <h5 class="modal-title" id="managePointsModalLabel" style="color: #F0ECE5;">Manage Points</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0ECE5;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Member ID</th>
+                                <th>Name</th>
+                                <th>Points</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="points-table-body">
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

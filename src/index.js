@@ -35,6 +35,80 @@ const gymId = localStorage.getItem('gymId');
 // Reference to the Gym document
 const gymDocRef = doc(db, 'Gym', gymId);
 
+async function displayActiveMembersPoints() {
+    try {
+        const membersCollection = collection(gymDocRef, 'Members');
+        const activeMembersQuery = query(membersCollection, where("Status", "==", "Active User"));
+
+        const activeMembersSnapshot = await getDocs(activeMembersQuery);
+
+        // Prepare data for the modal
+        const membersPointsData = activeMembersSnapshot.docs.map(doc => {
+            const userData = doc.data();
+            return {
+                memberId: doc.id,
+                firstName: userData['First Name'],
+                lastName: userData['Last Name'],
+                points: userData.Points || 0 // Handle case where points might be undefined
+            };
+        });
+
+        // Populate the modal table
+        const pointsTableBody = document.getElementById("points-table-body");
+        pointsTableBody.innerHTML = '';
+
+        membersPointsData.forEach(member => {
+            const newRow = pointsTableBody.insertRow();
+            newRow.innerHTML = `
+                <td>${member.memberId}</td>
+                <td>${member.firstName} ${member.lastName}</td>
+                <td>${member.points}</td>
+                <td>
+                <input type="number" class="form-control points-input" value="0">
+                <button class="btn btn-primary-custom add-points-btn" data-member-id="${member.memberId}">Add</button>
+                <button class="btn btn-primary-custom delete-points-btn" data-member-id="${member.memberId}">Delete</button>
+                </td>
+            `;
+
+            // Attach event listeners to the buttons
+            const addButton = newRow.querySelector('.add-points-btn');
+            const deleteButton = newRow.querySelector('.delete-points-btn');
+            const pointsInput = newRow.querySelector('.points-input');
+
+            addButton.addEventListener('click', () => {
+                const pointsToAdd = parseInt(pointsInput.value) || 0;
+                updateMemberPoints(member.memberId, member.points + pointsToAdd);
+                pointsInput.reset()
+            });
+
+            deleteButton.addEventListener('click', () => {
+                const pointsToDelete = parseInt(pointsInput.value) || 0;
+                updateMemberPoints(member.memberId, member.points - pointsToDelete);
+                pointsInput.reset()
+            });
+        });
+
+        // Show the modal
+        $('#managePointsModal').modal('show');
+
+    } catch (error) {
+        // ... (error handling)
+    }
+}
+
+// Function to update member's points in Firestore
+async function updateMemberPoints(memberId, newPoints) {
+    try {
+        const memberDocRef = doc(gymDocRef, 'Members', memberId);
+        await updateDoc(memberDocRef, { Points: newPoints });
+        // You might want to update the points display in the modal here or refresh the whole modal
+        alert(`Updated points for member ${memberId} to ${newPoints}`);
+    } catch (error) {
+        console.error("Error updating member points:", error);
+        // Handle the error (e.g., display an error message)
+    }
+}
+
 async function displayDashboardCounts() {
     try {
         // Get gym data from localStorage
@@ -54,7 +128,7 @@ async function displayDashboardCounts() {
         document.querySelector('.card:nth-child(1) .card-text').textContent = activeUsersSnapshot.size;
 
         // Fetch and display deactivated users count
-        const deactivatedUsersQuery = query(usersCollection, where("Status", "==", "Deactivated"));
+        const deactivatedUsersQuery = query(usersCollection, where("Status", "==", "Deactivated Account"));
         const deactivatedUsersSnapshot = await getDocs(deactivatedUsersQuery);
         document.querySelector('.card:nth-child(3) .card-text').textContent = deactivatedUsersSnapshot.size;
 
@@ -134,8 +208,11 @@ async function displayActiveMembers() {
 
                     const delButton = newRow.querySelector('.del-button');
                     delButton.addEventListener('click', () => {
-                        // Implement your deactivate user logic here
-                        console.log("Deactivate button clicked for user:", memberDoc.id);
+                        // Set the user ID in the modal's hidden input
+                        document.getElementById('deactivate-member-id').value = memberDoc.id;
+
+                        // Show the modal
+                        $('#deactivateUserModal').modal('show');
                     });
                 }
             });
@@ -143,6 +220,29 @@ async function displayActiveMembers() {
     } catch (error) {
         console.error("Error fetching active members:", error);
         // Handle the error (e.g., display an error message)
+    }
+}
+
+// Deactivate User Function
+async function deactivateUser(memberId) {
+    const userRef = doc(gymDocRef, 'Members', memberId);
+
+    try {
+        // 1. Update the user's status to 'Deactivated Account'
+        await updateDoc(userRef, { Status: 'Deactivated Account' });
+
+        // 2. Close the modal (if you're using one)
+        $('#deactivateUserModal').modal('hide');
+
+        // 3. Provide feedback to the user
+        alert(`User ${memberId} has been deactivated.`);
+
+        // 4. Refresh the user list (if necessary)
+        displayActiveMembers(); // Or any other function to update your UI
+
+    } catch (error) {
+        console.error('Error deactivating user:', error);
+        alert('Failed to deactivate user. Please try again.');
     }
 }
 
@@ -273,6 +373,23 @@ onAuthStateChanged(auth, (user) => {
         const gymId = localStorage.getItem('gymId');
         const gymDocRef = doc(db, 'Gym', gymId);
 
+        // Add "Manage Points" link to navbar and attach click event
+        const managePointsLink = document.createElement('a');
+        managePointsLink.classList.add('nav-link');
+        managePointsLink.href = '#'; // You might want to change this to a relevant page or keep it as '#'
+        managePointsLink.textContent = 'Manage Points';
+        managePointsLink.addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent default link behavior
+            displayActiveMembersPoints();
+        });
+
+        const newNavItem = document.createElement('li');
+        newNavItem.classList.add('nav-item');
+        newNavItem.appendChild(managePointsLink);
+
+        const navbarNav = document.querySelector('.navbar-nav');
+        navbarNav.appendChild(newNavItem);
+
         displayDashboardCounts();
 
         // Add User Form Submission (moved inside onAuthStateChanged)
@@ -336,6 +453,13 @@ onAuthStateChanged(auth, (user) => {
                 console.error('Error adding user:', error);
                 alert('Failed to add user. Please check the console for details.');
             }
+        });
+
+        // Attach event listener to the confirm deactivate button in the modal
+        const confirmDeactivateBtn = document.getElementById("confirm-deactivate");
+        confirmDeactivateBtn.addEventListener('click', () => {
+            const memberId = document.getElementById('deactivate-member-id').value;
+            deactivateUser(memberId);
         });
 
         const addRewardForm = document.getElementById("add-reward-form")
@@ -457,48 +581,6 @@ onAuthStateChanged(auth, (user) => {
         window.location.href = 'login.php';
     }
 });
-
-
-// //real-time display 
-// async function getDocumentCount(collectionName) {
-//     try {
-//         const collectionRef = collection(db, collectionName);
-//         const snapshot = await getDocs(collectionRef);
-//         return snapshot.size;
-//     } catch (error) {
-//         console.error(`Error getting document count for ${collectionName}:`, error);
-//         return 0;
-//     }
-// }
-
-// async function updateDocumentCountDisplays() {
-//     const userCount = await getDocumentCount('users');
-//     const rewardCount = await getDocumentCount('rewards');
-
-//     const userCountElement = document.querySelector('.card:nth-child(1) .box h1');
-//     const rewardCountElement = document.querySelector('.card:nth-child(2) .box h1');
-
-//     if (userCountElement) userCountElement.textContent = userCount;
-//     if (rewardCountElement) rewardCountElement.textContent = rewardCount;
-// }
-
-// // Real-time updates for users
-// const usersCollection = collection(db, 'users');
-// onSnapshot(usersCollection, async (snapshot) => {
-//     const userCount = snapshot.size;
-//     const userCountElement = document.querySelector('.card:nth-child(1) .box h1');
-//     if (userCountElement) userCountElement.textContent = userCount;
-// });
-
-// // Real-time updates for rewards
-// const rewardsCollection = collection(db, 'rewards');
-// onSnapshot(rewardsCollection, async (snapshot) => {
-//     const rewardCount = snapshot.size;
-//     const rewardCountElement = document.querySelector('.card:nth-child(2) .box h1');
-//     if (rewardCountElement) rewardCountElement.textContent = rewardCount;
-// });
-
-// updateDocumentCountDisplays();
 
 // log-out
 const logOut = document.getElementById('logout')

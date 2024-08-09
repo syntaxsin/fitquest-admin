@@ -11,6 +11,7 @@ module.exports = {
         rewards_archive: './src/rewards_archives.js',
         super_admin: './src/super_admin.js',
         reward_verif: './src/reward_verif.js',
+        admin_cms: './src/cms.js',
     },
     output: {
         path: path.resolve(__dirname, 'dist/bundle'),

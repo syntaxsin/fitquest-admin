@@ -34,6 +34,97 @@ const gymId = localStorage.getItem('gymId');
 
 const gymDocRef = doc(db, 'Gym', gymId);
 
+async function displayActiveMembersPoints() {
+    try {
+        const membersCollection = collection(gymDocRef, 'Members');
+        const activeMembersQuery = query(membersCollection, where("Status", "==", "Active User"));
+
+        const activeMembersSnapshot = await getDocs(activeMembersQuery);
+
+        // Prepare data for the modal
+        const membersPointsData = activeMembersSnapshot.docs.map(doc => {
+            const userData = doc.data();
+            return {
+                memberId: doc.id,
+                firstName: userData['First Name'],
+                lastName: userData['Last Name'],
+                points: userData.Points || 0 // Handle case where points might be undefined
+            };
+        });
+
+        // Populate the modal table
+        const pointsTableBody = document.getElementById("points-table-body");
+        pointsTableBody.innerHTML = '';
+
+        membersPointsData.forEach(member => {
+            const newRow = pointsTableBody.insertRow();
+            newRow.innerHTML = `
+                <td>${member.memberId}</td>
+                <td>${member.firstName} ${member.lastName}</td>
+                <td>${member.points}</td>
+                <td>
+                <input type="number" class="form-control points-input" value="0">
+                <button class="btn btn-primary-custom add-points-btn" data-member-id="${member.memberId}">Add</button>
+                <button class="btn btn-primary-custom delete-points-btn" data-member-id="${member.memberId}">Delete</button>
+                </td>
+            `;
+
+            // Attach event listeners to the buttons
+            const addButton = newRow.querySelector('.add-points-btn');
+            const deleteButton = newRow.querySelector('.delete-points-btn');
+            const pointsInput = newRow.querySelector('.points-input');
+
+            addButton.addEventListener('click', () => {
+                const pointsToAdd = parseInt(pointsInput.value) || 0;
+                updateMemberPoints(member.memberId, member.points + pointsToAdd);
+                pointsInput.reset()
+            });
+
+            deleteButton.addEventListener('click', () => {
+                const pointsToDelete = parseInt(pointsInput.value) || 0;
+                updateMemberPoints(member.memberId, member.points - pointsToDelete);
+                pointsInput.reset()
+            });
+        });
+
+        // Show the modal
+        $('#managePointsModal').modal('show');
+
+    } catch (error) {
+        // ... (error handling)
+    }
+}
+
+// Function to update member's points in Firestore
+async function updateMemberPoints(memberId, newPoints) {
+    try {
+        const memberDocRef = doc(gymDocRef, 'Members', memberId);
+        await updateDoc(memberDocRef, { Points: newPoints });
+        // You might want to update the points display in the modal here or refresh the whole modal
+        alert(`Updated points for member ${memberId} to ${newPoints}`);
+    } catch (error) {
+        console.error("Error updating member points:", error);
+        // Handle the error (e.g., display an error message)
+    }
+}
+
+// Add "Manage Points" link to navbar and attach click event
+const managePointsLink = document.createElement('a');
+managePointsLink.classList.add('nav-link');
+managePointsLink.href = '#'; // You might want to change this to a relevant page or keep it as '#'
+managePointsLink.textContent = 'Manage Points';
+managePointsLink.addEventListener('click', (e) => {
+    e.preventDefault(); // Prevent default link behavior
+    displayActiveMembersPoints();
+});
+
+const newNavItem = document.createElement('li');
+newNavItem.classList.add('nav-item');
+newNavItem.appendChild(managePointsLink);
+
+const navbarNav = document.querySelector('.navbar-nav');
+navbarNav.appendChild(newNavItem);
+
 async function fetchPendingRewards() {
     try {
         const gymId = localStorage.getItem('gymId');
