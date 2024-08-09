@@ -98,9 +98,6 @@
                     <a class="nav-link" href="admin_index.php">Dashboard</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Inactive Users</a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" href="admin_verification.php">Verify Rewards</a>
                 </li>
                 <li class="nav-item">
@@ -208,11 +205,15 @@
         </div>
     </div>
 
+
     <div class="modal fade" id="viewAnnouncementModal" tabindex="-1" role="dialog" aria-labelledby="viewAnnouncementModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header" style="background: #161A30;">
                     <h5 class="modal-title" id="viewAnnouncementModalLabel" style="color: #F0ECE5;">Announcement Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0ECE5;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body">
                     <h4 id="modalAnnouncementTitle" style="font-weight: 600;"></h4>

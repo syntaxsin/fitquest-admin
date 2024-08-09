@@ -229,6 +229,12 @@ async function viewAnnouncement(announcementId) {
             document.getElementById('modalAnnouncementTitle').textContent = announcementData.title;
             document.getElementById('modalAnnouncementContent').textContent = announcementData.content;
             document.getElementById('modalAnnouncementPriority').textContent = announcementData.priority;
+            
+            // Handle the date display
+            const displayDate = announcementData.updatedAt 
+                ? announcementData.updatedAt.toDate().toLocaleString() 
+                : announcementData.createdAt.toDate().toLocaleString();
+            document.getElementById('modalAnnouncementDate').textContent = displayDate;
 
             // Show the modal
             $('#viewAnnouncementModal').modal('show');
@@ -409,6 +415,11 @@ async function viewBlogPost(blogPostId) {
             document.getElementById('modalBlogPostTitle').textContent = blogPostData.title;
             document.getElementById('modalBlogPostAuthor').textContent = blogPostData.author;
             document.getElementById('modalBlogPostContent').textContent = blogPostData.content;
+            // Handle the date display
+            const displayDate = blogPostData.updatedAt 
+                ? blogPostData.updatedAt.toDate().toLocaleString()
+                : blogPostData.createdAt.toDate().toLocaleString();
+            document.getElementById('modalBlogPostDate').textContent = displayDate;
 
             // Show the modal
             $('#viewBlogPostModal').modal('show'); // Make sure you have this modal in your HTML

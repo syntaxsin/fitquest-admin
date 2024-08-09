@@ -74,6 +74,10 @@
             background: #B6BBC4;
         }
 
+        .card:hover {
+            cursor: pointer;
+        }
+
         .add-reward-btn,
         .add-user-btn {
             padding: 45px 160px;
@@ -93,9 +97,6 @@
             <ul class="navbar-nav ml-auto mr-5">
                 <li class="nav-item">
                     <a class="nav-link active" href="#">Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Inactive Users</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="admin_verification.php">Verify Rewards</a>
@@ -125,8 +126,7 @@
                     </div>
                 </div>
                 <div class="card m-1" style="width: 18rem;">
-                    <div class="card-body">
-                        <p class="card-text">quantity</p>
+                    <div class="card-body" style="display: flex; align-items:center;">
                         <h4 class="card-title">Deactivated Accounts</h4>
                     </div>
                 </div>
@@ -237,9 +237,9 @@
     <div class="modal fade" id="deactivateUserModal" tabindex="-1" role="dialog" aria-labelledby="deactivateUserModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deactivateUserModalLabel">Confirm Deactivation</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <div class="modal-header" style="background: #161A30;">
+                    <h5 class="modal-title" id="deactivateUserModalLabel" style="color: #F0ECE5;">Confirm Deactivation</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0ECE5;">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -248,6 +248,32 @@
                     <input type="hidden" id="deactivate-member-id">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-danger" id="confirm-deactivate">Deactivate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="inactiveUsersModal" tabindex="-1" aria-labelledby="inactiveUsersModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background: #161A30;">
+                    <h5 class="modal-title" id="inactiveUsersModalLabel" style="color: #F0ECE5;">Inactive Users</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0ECE5;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inactiveUsersList"></tbody>
+                    </table>
                 </div>
             </div>
         </div>

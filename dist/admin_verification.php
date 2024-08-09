@@ -92,9 +92,6 @@
                     <a class="nav-link" href="admin_index.php">Dashboard</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Inactive Users</a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link active" href="admin_verification.php">Verify Rewards</a>
                 </li>
                 <li class="nav-item">

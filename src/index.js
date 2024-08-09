@@ -42,14 +42,14 @@ async function displayActiveMembersPoints() {
 
         const activeMembersSnapshot = await getDocs(activeMembersQuery);
 
-        // Prepare data for the modal
+        // Prepare data for the modal, handling potential field name variations
         const membersPointsData = activeMembersSnapshot.docs.map(doc => {
             const userData = doc.data();
             return {
                 memberId: doc.id,
-                firstName: userData['First Name'],
-                lastName: userData['Last Name'],
-                points: userData.Points || 0 // Handle case where points might be undefined
+                firstName: userData['First Name'] || userData.FirstName,  // Prioritize 'First Name', then fallback
+                lastName: userData['Last Name'] || userData.LastName,    // Prioritize 'Last Name', then fallback
+                points: userData.Points || 0
             };
         });
 
@@ -130,7 +130,7 @@ async function displayDashboardCounts() {
         // Fetch and display deactivated users count
         const deactivatedUsersQuery = query(usersCollection, where("Status", "==", "Deactivated Account"));
         const deactivatedUsersSnapshot = await getDocs(deactivatedUsersQuery);
-        document.querySelector('.card:nth-child(3) .card-text').textContent = deactivatedUsersSnapshot.size;
+        // document.querySelector('.card:nth-child(3) .card-text').textContent = deactivatedUsersSnapshot.size;
 
         // Fetch and display reward count
         const rewardsCollection = collection(gymDocRef, 'Rewards');
@@ -141,9 +141,9 @@ async function displayDashboardCounts() {
         onSnapshot(activeUsersQuery, (snapshot) => {
             document.querySelector('.card:nth-child(1) .card-text').textContent = snapshot.size;
         });
-        onSnapshot(deactivatedUsersQuery, (snapshot) => {
-            document.querySelector('.card:nth-child(3) .card-text').textContent = snapshot.size;
-        });
+        // onSnapshot(deactivatedUsersQuery, (snapshot) => {
+        //     document.querySelector('.card:nth-child(3) .card-text').textContent = snapshot.size;
+        // });
         onSnapshot(rewardsCollection, (snapshot) => {
             document.querySelector('.card:nth-child(2) .card-text').textContent = snapshot.size;
         });
@@ -181,30 +181,24 @@ async function displayActiveMembers() {
                         existingRow.remove(); // Remove existing row to avoid duplicates
                     }
 
+                    // Handle variations in FirstName and LastName fields
+                    const firstName = userData.FirstName || userData["First Name"];
+                    const lastName = userData.LastName || userData["Last Name"];
+
                     const newRow = userList.insertRow();
                     newRow.id = rowId;
                     newRow.innerHTML = `
                         <td>${memberDoc.id}</td>
-                        <td>${userData.FirstName}</td>
-                        <td>${userData.LastName}</td>
+                        <td>${firstName}</td>
+                        <td>${lastName}</td>
                         <td>${userData.Email}</td>
                         <td>${userData.Status}</td>
                         <td>
-                            <button class="btn btn-secondary-custom edit-button" data-bs-toggle="modal" data-bs-target="#editUserModal" data-member-id="${memberDoc.id}">
-                                <i class="fas fa-edit"></i>
-                            </button>
                             <button class="btn btn-secondary-custom del-button" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-member-id="${memberDoc.id}">
                                 <i class="fas fa-power-off" ></i>
                             </button>
                         </td>
                     `;
-
-                    // Add event listeners to buttons (implementation needed)
-                    const editButton = newRow.querySelector('.edit-button');
-                    editButton.addEventListener('click', () => {
-                        // Implement your edit user logic here
-                        console.log("Edit button clicked for user:", memberDoc.id);
-                    });
 
                     const delButton = newRow.querySelector('.del-button');
                     delButton.addEventListener('click', () => {
@@ -229,7 +223,10 @@ async function deactivateUser(memberId) {
 
     try {
         // 1. Update the user's status to 'Deactivated Account'
-        await updateDoc(userRef, { Status: 'Deactivated Account' });
+        await updateDoc(userRef, {
+            Status: 'Deactivated Account',
+            Points: null
+        });
 
         // 2. Close the modal (if you're using one)
         $('#deactivateUserModal').modal('hide');
@@ -245,6 +242,82 @@ async function deactivateUser(memberId) {
         alert('Failed to deactivate user. Please try again.');
     }
 }
+
+// Function to fetch and display inactive users
+async function displayInactiveUsers() {
+    const inactiveUsersList = document.getElementById('inactiveUsersList');
+    inactiveUsersList.innerHTML = ''; // Clear previous list
+
+    try {
+        const membersCollection = collection(gymDocRef, 'Members');
+        const snapshot = await getDocs(query(membersCollection, where('Status', '==', 'Deactivated Account')));
+
+        if (snapshot.empty) {
+            // Handle no inactive users found (you can add a row to the table indicating this)
+            const newRow = inactiveUsersList.insertRow();
+            newRow.innerHTML = `
+                <td colspan="3" class="text-center">No inactive users found.</td>
+            `;
+        } else {
+            snapshot.forEach(doc => {
+                const user = doc.data();
+                const newRow = inactiveUsersList.insertRow();
+
+                // Handle variations in FirstName and LastName fields
+                const firstName = user.FirstName || user["First Name"];
+                const lastName = user.LastName || user["Last Name"];
+
+                newRow.innerHTML = `
+                    <td>${doc.id}</td>
+                    <td>${firstName} ${lastName}</td>
+                    <td>${user.Email}</td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary-custom reactivateBtn" data-user-id="${doc.id}">Reactivate</button>
+                    </td>
+                `;
+            });
+        }
+
+        // Attach event listeners to reactivate buttons 
+        const reactivateBtns = document.querySelectorAll('.reactivateBtn');
+        reactivateBtns.forEach(btn => {
+            btn.addEventListener('click', reactivateUser);
+        });
+
+    } catch (error) {
+        console.error('Error fetching inactive users:', error);
+        inactiveUsersList.innerHTML = `
+            <tr>
+                <td colspan="3" class="text-center">Error fetching inactive users. Please try again later.</td>
+            </tr>
+        `;
+    }
+}
+
+// Function to reactivate a user
+async function reactivateUser(event) {
+    const userId = event.target.dataset.userId;
+
+    try {
+        confirm('Do you want to reactivate this account?')
+        const membersCollection = collection(gymDocRef, 'Members');
+        await updateDoc(doc(membersCollection, userId), {
+            Status: 'Active User'
+        });
+
+        console.log('User reactivated successfully!');
+
+        // Refresh the inactive users list and potentially other parts of your UI
+        displayInactiveUsers();
+        displayActiveMembers(); // Or any other relevant function to update the active members list
+
+    } catch (error) {
+        console.error('Error reactivating user:', error);
+        alert('Failed to reactivate user. Please try again.');
+    }
+}
+
+
 
 // Function to fetch and display claimable rewards
 async function displayClaimableRewards() {
@@ -460,6 +533,20 @@ onAuthStateChanged(auth, (user) => {
         confirmDeactivateBtn.addEventListener('click', () => {
             const memberId = document.getElementById('deactivate-member-id').value;
             deactivateUser(memberId);
+        });
+
+        // Attach click event to the new card
+        const deactivatedAccountsCard = document.querySelector('.card:nth-child(3)'); // Assuming it's the 3rd card
+        deactivatedAccountsCard.addEventListener('click', (event) => {
+            event.preventDefault();
+            displayInactiveUsers();
+            const inactiveUsersModal = new bootstrap.Modal(document.getElementById('inactiveUsersModal'));
+            if (inactiveUsersModal) {
+                inactiveUsersModal.show();
+                console.log('Modal should be shown'); // Debugging
+            } else {
+                console.error('Modal element not found');
+            }
         });
 
         const addRewardForm = document.getElementById("add-reward-form")

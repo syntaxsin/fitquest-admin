@@ -1,13 +1,13 @@
 import { initializeApp } from "firebase/app";
 import {
-    getFirestore, 
-    collection, 
+    getFirestore,
+    collection,
     doc,
-    getDocs, 
-    query, 
-    where, 
-    limit, 
-    orderBy 
+    getDocs,
+    query,
+    where,
+    limit,
+    orderBy
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 
@@ -34,7 +34,7 @@ const userPointsElement = document.getElementById('userPoints');
 const userStatusElement = document.getElementById('userStatus');
 const firstWeightEntryElement = document.getElementById('firstWeightEntry');
 const lastWeightEntryElement = document.getElementById('lastWeightEntry');
-const pendingRewardsList = document.getElementById('pendingRewardsList'); 
+const pendingRewardsList = document.getElementById('pendingRewardsList');
 const announcementsContent = document.getElementById('announcementsContent');
 const blogsContent = document.getElementById('blogsContent');
 
@@ -65,13 +65,13 @@ function displayUserData(user) {
                         if (!firstEntrySnapshot.empty) {
                             const firstEntryData = firstEntrySnapshot.docs[0].data();
                             const firstEntryDate = firstEntryData.date.toDate();
-                            firstWeightEntryElement.textContent = `${firstEntryData.weight} kg on ${firstEntryDate.toLocaleDateString()}`; 
+                            firstWeightEntryElement.textContent = `${firstEntryData.weight} kg on ${firstEntryDate.toLocaleDateString()}`;
                         } else {
                             firstWeightEntryElement.textContent = "No weight entries yet";
                         }
                     }).catch((error) => {
                         console.error("Error fetching first weight entry:", error);
-                        firstWeightEntryElement.textContent = "Error fetching weight entry"; 
+                        firstWeightEntryElement.textContent = "Error fetching weight entry";
                     });
 
                     // Query for the last weight entry
@@ -80,26 +80,26 @@ function displayUserData(user) {
                         if (!lastEntrySnapshot.empty) {
                             const lastEntryData = lastEntrySnapshot.docs[0].data();
                             const lastEntryDate = lastEntryData.date.toDate();
-                            lastWeightEntryElement.textContent = `${lastEntryData.weight} kg on ${lastEntryDate.toLocaleDateString()}`; 
+                            lastWeightEntryElement.textContent = `${lastEntryData.weight} kg on ${lastEntryDate.toLocaleDateString()}`;
                         } else {
                             lastWeightEntryElement.textContent = "No weight entries yet";
                         }
                     }).catch((error) => {
                         console.error("Error fetching last weight entry:", error);
-                        lastWeightEntryElement.textContent = "Error fetching weight entry"; 
+                        lastWeightEntryElement.textContent = "Error fetching weight entry";
                     });
 
                     // Fetch and display pending rewards
                     const pendingRewardsRef = collection(db, 'Gym', gymId, 'Members', userId, 'pending_rewards');
                     getDocs(pendingRewardsRef).then((pendingRewardsSnapshot) => {
-                        pendingRewardsList.innerHTML = ''; 
+                        pendingRewardsList.innerHTML = '';
 
                         for (const doc of pendingRewardsSnapshot.docs) {
                             const rewardName = doc.id; // Reward name is the document ID
                             const rewardData = doc.data();
 
                             const listItem = document.createElement('li');
-                            listItem.textContent = `${rewardName} (Status: ${rewardData.status})`;  
+                            listItem.textContent = `${rewardName} (Status: ${rewardData.status})`;
                             pendingRewardsList.appendChild(listItem);
                         }
 
@@ -114,7 +114,7 @@ function displayUserData(user) {
                         const listItem = document.createElement('li');
                         listItem.textContent = "Error fetching pending rewards";
                         pendingRewardsList.appendChild(listItem);
-                    }); 
+                    });
 
                     // Fetch and display announcements
                     fetchAndDisplayAnnouncements(gymId);
@@ -140,11 +140,11 @@ function displayUserData(user) {
 // Function to fetch and display announcements
 function fetchAndDisplayAnnouncements(gymId) {
     // Assuming you have an 'Announcements' collection under the 'Gym' document
-    const announcementsRef = collection(db, 'Gym', gymId, 'Announcements'); 
+    const announcementsRef = collection(db, 'Gym', gymId, 'Announcements');
 
     getDocs(announcementsRef)
         .then((announcementsSnapshot) => {
-            announcementsContent.innerHTML = ''; 
+            announcementsContent.innerHTML = '';
 
             if (!announcementsSnapshot.empty) {
                 for (const doc of announcementsSnapshot.docs) {
@@ -156,7 +156,7 @@ function fetchAndDisplayAnnouncements(gymId) {
                         <h3>${announcementData.title}</h3> 
                         <p>${announcementData.content}</p>
                         <p>Posted on: ${announcementData.createdAt.toDate().toLocaleDateString()}</p> 
-                    `; 
+                    `;
                     announcementsContent.appendChild(announcementElement);
                 }
             } else {
@@ -172,35 +172,35 @@ function fetchAndDisplayAnnouncements(gymId) {
 // Function to fetch and display blogs
 function fetchAndDisplayBlogs(gymId) {
     // Assuming you have a 'BlogPosts' collection under the 'Gym' document
-    const blogsRef = collection(db, 'Gym', gymId, 'BlogPosts'); 
-  
+    const blogsRef = collection(db, 'Gym', gymId, 'BlogPosts');
+
     getDocs(blogsRef)
-      .then((blogsSnapshot) => {
-        blogsContent.innerHTML = ''; 
-  
-        if (!blogsSnapshot.empty) {
-          for (const doc of blogsSnapshot.docs) {
-            const blogData = doc.data();
-  
-            const blogElement = document.createElement('div');
-            blogElement.innerHTML = `
+        .then((blogsSnapshot) => {
+            blogsContent.innerHTML = '';
+
+            if (!blogsSnapshot.empty) {
+                for (const doc of blogsSnapshot.docs) {
+                    const blogData = doc.data();
+
+                    const blogElement = document.createElement('div');
+                    blogElement.innerHTML = `
               <h3>${blogData.title}</h3> 
               <p>By: ${blogData.author}</p>
               <p>${blogData.content}</p>
               <p>Posted on: ${blogData.createdAt.toDate().toLocaleDateString()}</p> 
-            `; 
-            blogsContent.appendChild(blogElement);
-          }
-        } else {
-          blogsContent.innerHTML = "<p>No blogs yet.</p>";
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching blogs:", error);
-        blogsContent.innerHTML = "<p>Error fetching blogs.</p>";
-      });
-  }
-  
+            `;
+                    blogsContent.appendChild(blogElement);
+                }
+            } else {
+                blogsContent.innerHTML = "<p>No blogs yet.</p>";
+            }
+        })
+        .catch((error) => {
+            console.error("Error fetching blogs:", error);
+            blogsContent.innerHTML = "<p>Error fetching blogs.</p>";
+        });
+}
+
 
 // Use onAuthStateChanged to ensure the user is authenticated before fetching data
 onAuthStateChanged(auth, (user) => {
