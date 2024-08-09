@@ -42,14 +42,14 @@ async function displayActiveMembersPoints() {
 
         const activeMembersSnapshot = await getDocs(activeMembersQuery);
 
-        // Prepare data for the modal
+        // Prepare data for the modal, handling potential field name variations
         const membersPointsData = activeMembersSnapshot.docs.map(doc => {
             const userData = doc.data();
             return {
                 memberId: doc.id,
-                firstName: userData['First Name'],
-                lastName: userData['Last Name'],
-                points: userData.Points || 0 // Handle case where points might be undefined
+                firstName: userData['First Name'] || userData.FirstName,  // Prioritize 'First Name', then fallback
+                lastName: userData['Last Name'] || userData.LastName,    // Prioritize 'Last Name', then fallback
+                points: userData.Points || 0
             };
         });
 
@@ -508,3 +508,18 @@ document.getElementById('add-blog-post-form').addEventListener('submit', addBlog
 document.getElementById('edit-blog-post-form').addEventListener('submit', updateBlogPost);
 
 displayBlogPosts()
+
+// log-out
+const logOut = document.getElementById('logout')
+logOut.addEventListener('click', async () => {
+    try {
+        await signOut(auth);
+        console.log('User signed out successfully');
+        // Optionally, clear any stored user data
+        localStorage.removeItem('gymId');
+        localStorage.removeItem('userType');
+        window.location.href = '../index.php'; // Replace with your actual login page URL
+    } catch (error) {
+        console.error('Error signing out:', error);
+    }
+})
