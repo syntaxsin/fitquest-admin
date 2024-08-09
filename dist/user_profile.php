@@ -191,14 +191,14 @@
 
     <section id="user-profile">
     <div class="row profile-content">
-        <div class="col-six tab-full profile-box">
+        <div class="col-six tab-full profile-box"> 
             <div class="profile-info">
                 <br>
                 <h2>Welcome Back,</h2>
                 <h2 id="userName"></h2>
                 <p id="userEmail"></p>
                 <p>Current Points: <span id="userPoints"></span></p>
-                <p>Status: <span id="userStatus"></span></p>
+                <p>Status: <span id="userStatus"></span></p> 
                 <div>
                     <h3>Weight Entries:</h3>
                     <p>First Entry: <span id="firstWeightEntry"></span></p>
@@ -207,7 +207,16 @@
                 <button id="logout-button" class="button button-primary">Logout</button>
             </div>
         </div>
+        
+        <div class="col-six tab-full profile-box">
+            <div class="profile-info">
+                <br>
+                <h2>Pending Rewards:</h2>
+                <ul id="pendingRewardsList"></ul> 
+            </div>
+        </div> 
     </div>
+    
 </section>
 
     

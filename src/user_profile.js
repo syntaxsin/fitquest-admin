@@ -1,18 +1,17 @@
-import { initializeApp } from "firebase/app"
+import { initializeApp } from "firebase/app";
 import {
-    getFirestore, collection, onSnapshot,
-    addDoc, deleteDoc, doc, getDocs,
-    query, where, limit,
-    orderBy, serverTimestamp,
-    getDoc, updateDoc, setDoc
-} from 'firebase/firestore'
-import {
-    getAuth,
-    createUserWithEmailAndPassword,
-    signOut, signInWithEmailAndPassword,
-    onAuthStateChanged
-} from 'firebase/auth'
+    getFirestore, 
+    collection, 
+    doc,
+    getDocs, 
+    query, 
+    where, 
+    limit, 
+    orderBy 
+} from "firebase/firestore";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 
+// Firebase configuration (replace placeholders with your actual values)
 const firebaseConfig = {
     apiKey: "AIzaSyBxEwY413QHRNSRv6_38Odi9wfWWJg249I",
     authDomain: "fitquest-3ea1c.firebaseapp.com",
@@ -24,42 +23,20 @@ const firebaseConfig = {
     measurementId: "G-3RE9G8K9YG"
 };
 
-initializeApp(firebaseConfig)
-const db = getFirestore()
-const auth = getAuth()
-const colRef = collection(db, 'rewards')
-const userRef = collection(db, 'users')
-
-const q = query(colRef, orderBy('createdAt'))
-const userQuery = query(userRef, orderBy('createdAt'))
-
-
-// onSnapshot(q, (snapshot) => {
-//     let rewards = []
-//     snapshot.docs.forEach((doc) => {
-//         rewards.push({ ...doc.data(), id: doc.id})
-//     })
-//     console.log(rewards)
-// })
-
-// onSnapshot(userQuery, (snapshot) => {
-//     let users = []
-//     snapshot.docs.forEach((doc) => {
-//         users.push({ ...doc.data(), id: doc.id})
-//     })
-//     console.log(users)
-// })
+initializeApp(firebaseConfig);
+const db = getFirestore();
+const auth = getAuth();
 
 // Get references to HTML elements
 const userNameElement = document.getElementById('userName');
 const userEmailElement = document.getElementById('userEmail');
-const userPointsElement   
- = document.getElementById('userPoints');
+const userPointsElement = document.getElementById('userPoints');
 const userStatusElement = document.getElementById('userStatus');
 const firstWeightEntryElement = document.getElementById('firstWeightEntry');
 const lastWeightEntryElement = document.getElementById('lastWeightEntry');
+const pendingRewardsList = document.getElementById('pendingRewardsList'); 
 
-// Function to display user data (including weight entries)
+// Function to display user data (including weight entries and pending rewards)
 function displayUserData(user) {
     if (user) {
         const gymId = localStorage.getItem('gymId');
@@ -86,7 +63,7 @@ function displayUserData(user) {
                         if (!firstEntrySnapshot.empty) {
                             const firstEntryData = firstEntrySnapshot.docs[0].data();
                             const firstEntryDate = firstEntryData.date.toDate();
-                            firstWeightEntryElement.textContent = `${firstEntryData.weight} kg on ${firstEntryDate.toLocaleDateString()}`;
+                            firstWeightEntryElement.textContent = `${firstEntryData.weight} kg on ${firstEntryDate.toLocaleDateString()}`; 
                         } else {
                             firstWeightEntryElement.textContent = "No weight entries yet";
                         }
@@ -98,11 +75,35 @@ function displayUserData(user) {
                         if (!lastEntrySnapshot.empty) {
                             const lastEntryData = lastEntrySnapshot.docs[0].data();
                             const lastEntryDate = lastEntryData.date.toDate();
-                            lastWeightEntryElement.textContent = `${lastEntryData.weight} kg on ${lastEntryDate.toLocaleDateString()}`;
+                            lastWeightEntryElement.textContent = `${lastEntryData.weight} kg on ${lastEntryDate.toLocaleDateString()}`; 
                         } else {
                             lastWeightEntryElement.textContent = "No weight entries yet";
                         }
                     });
+
+
+                    // Fetch and display pending rewards
+                    const pendingRewardsRef = collection(db, 'Gym', gymId, 'Members', userId, 'pending_rewards');
+                    getDocs(pendingRewardsRef).then((pendingRewardsSnapshot) => {
+                        pendingRewardsList.innerHTML = ''; 
+
+                        for (const doc of pendingRewardsSnapshot.docs) {
+                            const rewardName = doc.id; // Reward name is the document ID
+                            const rewardData = doc.data();
+
+                            const listItem = document.createElement('li');
+                            listItem.textContent = `${rewardName} (Status: ${rewardData.status})`;  
+                            pendingRewardsList.appendChild(listItem);
+                        }
+
+                        if (pendingRewardsSnapshot.empty) {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = "No pending rewards";
+                            pendingRewardsList.appendChild(listItem);
+                        }
+                    }).catch((error) => {
+                        console.error("Error fetching pending rewards:", error);
+                    }); 
                 } else {
                     console.log("User not found in this gym.");
                 }
@@ -124,7 +125,8 @@ onAuthStateChanged(auth, (user) => {
     displayUserData(user);
 });
 
-const logOut = document.getElementById('logout-button')
+
+const logOut = document.getElementById('logout-button');
 logOut.addEventListener('click', () => {
     fetch('destroy_session.php') // Send a request to destroy the session
         .then(() => {
@@ -139,4 +141,4 @@ logOut.addEventListener('click', () => {
         .catch(error => {
             console.error('Error destroying PHP session:', error);
         });
-})
+});
