@@ -118,7 +118,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to verify the selected rewards for this user?</p>
+                    <p>User's Pending Rewards:</p>
                     <ul id="modalRewardList" class="list-group"></ul>
                 </div>
             </div>

@@ -184,7 +184,7 @@ let currentUserIdForModal; //To hold the userId for the modal to avoid concurren
 function createRewardListItems(pendingRewards) {
     return pendingRewards.map(reward => `
         <li class="list-group-item d-flex justify-content-between align-items-center">
-            ${reward.rewardId} - ${reward.requiredPoints} points
+            ${reward.rewardId} - ${reward.requiredPoints} points (${reward.quantityClaimed}x)
             <button class="btn btn-sm btn-success verify-claim-btn" data-reward-id="${reward.rewardId}">Verify Claim</button>
         </li>
     `).join('');
@@ -258,9 +258,32 @@ $('#verifyRewardModal').on('click', '.verify-claim-btn', async function () {
             const rewardDoc = await getDoc(rewardDocRef);
             const rewardData = rewardDoc.data();
 
+            if (!gymId) {
+                throw new Error("Gym ID not found in localStorage");
+            }
+
             await runTransaction(db, async (transaction) => {
                 const userDoc = await transaction.get(userDocRef);
                 const userData = userDoc.data();
+
+                // 1. Get the gymId from localStorage
+                const gymId = localStorage.getItem('gymId');
+                if (!gymId) {
+                    throw new Error("Gym ID not found in localStorage");
+                }
+
+                // 2. Construct the gym document reference
+                const gymDocRef = doc(db, 'Gym', gymId);
+
+                // 3. Get the 'Rewards' subcollection within the gym document
+                const rewardsCollection = collection(gymDocRef, 'Rewards');
+
+                // 4. Construct the reward document reference
+                const rewardInGymDocRef = doc(rewardsCollection, rewardId);
+
+                // 5. Get the reward document from the gym's rewards
+                const rewardInGymDoc = await transaction.get(rewardInGymDocRef);
+                const rewardInGymData = rewardInGymDoc.data();
 
                 const newPoints = userData.Points - rewardData.requiredPoints;
                 if (newPoints < 0) {
@@ -279,13 +302,24 @@ $('#verifyRewardModal').on('click', '.verify-claim-btn', async function () {
                 };
                 const formattedTimestamp = now.toLocaleString('en-US', options);
                 // Create a new document with the formatted timestamp as the ID
-                const newRewardRef = doc(claimedRewardsCollection, formattedTimestamp); // Use formattedTimestamp as the document ID
+                const newRewardRef = doc(claimedRewardsCollection, formattedTimestamp);
+
+                // 6. Calculate the updated quantity
+                const updatedQuantity = rewardInGymData.quantity - rewardData.quantityClaimed;
 
                 transaction.set(newRewardRef, {
                     ...rewardData,
                     status: 'claimed',
                     createdAt: serverTimestamp()
                 });
+
+                // 7. Check if there's enough quantity left
+                if (updatedQuantity < 0) {
+                    throw new Error("Not enough quantity of this reward left.");
+                }
+
+                // 8. Update the reward document in the gym's rewards
+                transaction.update(rewardInGymDocRef, { quantity: updatedQuantity });
 
                 transaction.delete(rewardDocRef);
             });

@@ -197,6 +197,9 @@ async function displayActiveMembers() {
                             <button class="btn btn-secondary-custom del-button" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-member-id="${memberDoc.id}">
                                 <i class="fas fa-power-off" ></i>
                             </button>
+                            <button class="btn btn-secondary-custom view-claimed-rewards" data-member-id="${memberDoc.id}">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </button>
                         </td>
                     `;
 
@@ -208,12 +211,50 @@ async function displayActiveMembers() {
                         // Show the modal
                         $('#deactivateUserModal').modal('show');
                     });
+
+                    // Add event listener to the "View Claimed Rewards" button
+                    const viewClaimedRewardsButton = newRow.querySelector('.view-claimed-rewards');
+                    viewClaimedRewardsButton.addEventListener('click', () => {
+                        showClaimedRewardsModal(memberDoc.id); // Call a function to fetch and display claimed rewards
+                    });
                 }
             });
         });
     } catch (error) {
         console.error("Error fetching active members:", error);
         // Handle the error (e.g., display an error message)
+    }
+}
+
+// Function to fetch and display claimed rewards in a modal
+async function showClaimedRewardsModal(memberId) {
+    try {
+        // 1. Get reference to the modal body where you'll display the rewards
+        const modalBody = document.getElementById('claimedRewardsModalBody'); 
+        modalBody.innerHTML = ''; // Clear previous content
+
+        // 2. Fetch the claimed rewards for this member
+        const claimedRewardsRef = collection(doc(gymDocRef, 'Members', memberId), 'claimed_rewards');
+        const claimedRewardsSnapshot = await getDocs(claimedRewardsRef);
+
+        if (claimedRewardsSnapshot.empty) {
+            modalBody.innerHTML = '<p>No claimed rewards yet.</p>';
+        } else {
+            let rewardsList = '<ul>';
+            claimedRewardsSnapshot.forEach(doc => {
+                const rewardData = doc.data();
+                rewardsList += `<li>${rewardData.rewardName} - Claimed on ${rewardData.createdAt.toDate().toLocaleString()}</li>`;
+            });
+            rewardsList += '</ul>';
+            modalBody.innerHTML = rewardsList;
+        }
+
+        // 3. Show the modal
+        $('#claimedRewardsModal').modal('show'); 
+
+    } catch (error) {
+        console.error("Error fetching claimed rewards:", error);
+        alert("An error occurred while fetching claimed rewards.");
     }
 }
 
@@ -354,7 +395,8 @@ async function displayClaimableRewards() {
                         <td>${rewardData.rewardName}</td>
                         <td>${rewardData.rewardDescription}</td>
                         <td>${rewardData.requiredPoints}</td>
-                        <td>${rewardData.status}</td> 
+                        <td>${rewardData.quantity}</td> 
+                        <td>${rewardData.status}</td>
                         <td>
                             <button class="btn btn-secondary-custom edit-button" data-bs-toggle="modal" data-bs-target="#editRewardModal" data-reward-id="${rewardDoc.id}">
                                 <i class="fas fa-edit"></i>
@@ -507,7 +549,7 @@ onAuthStateChanged(auth, (user) => {
                     FirstName: firstName,
                     LastName: lastName,
                     Status: status,
-                    points: points,
+                    Points: points,
                     createdAt: serverTimestamp()
                 });
 
@@ -520,8 +562,7 @@ onAuthStateChanged(auth, (user) => {
                 alert(`User added successfully with ID ${newUserId}!`);
                 addUserForm.reset();
 
-                // 7. Refresh the active members list 
-                displayActiveMembers();
+                // 7. Refresh the active members list
             } catch (error) {
                 console.error('Error adding user:', error);
                 alert('Failed to add user. Please check the console for details.');
@@ -556,6 +597,7 @@ onAuthStateChanged(auth, (user) => {
             const rewardName = document.getElementById('rewardName').value;
             const rewardDescription = document.getElementById('rewardDescription').value;
             const requiredPoints = parseInt(document.getElementById('requiredPoints').value);
+            const quantity = parseInt(document.getElementById('quantity').value);
 
             try {
                 // 1. Get the gymId from localStorage
@@ -592,6 +634,7 @@ onAuthStateChanged(auth, (user) => {
                     rewardDescription: rewardDescription,
                     requiredPoints: requiredPoints,
                     status: 'Claimable',
+                    quantity: quantity,
                     createdAt: serverTimestamp()
                 });
 
@@ -616,6 +659,7 @@ onAuthStateChanged(auth, (user) => {
             const newRewardName = document.getElementById("updateRewardName").value;
             const newRewardDescription = document.getElementById("updateRewardDescription").value;
             const newRequiredPoints = parseInt(document.getElementById("updateRequiredPoints").value);
+            const newQuantity = parseInt(document.getElementById("updateQuantity").value);
 
             try {
                 // 1. Get the gymId from localStorage
@@ -638,6 +682,7 @@ onAuthStateChanged(auth, (user) => {
                     rewardName: newRewardName,
                     rewardDescription: newRewardDescription,
                     requiredPoints: newRequiredPoints,
+                    quantity: newQuantity,
                     // quantity: updateQuantity, // Uncomment if you have quantity in your modal
                 });
 

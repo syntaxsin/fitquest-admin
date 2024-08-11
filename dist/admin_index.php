@@ -160,6 +160,7 @@
                             <th>Reward Name</th>
                             <th>Description</th>
                             <th>Required Points</th>
+                            <th>Quantity</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -167,6 +168,22 @@
                     <tbody>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Claimed Rewards History Modal -->
+    <div class="modal fade" id="claimedRewardsModal" tabindex="-1" aria-labelledby="claimedRewardsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background: #161A30;">
+                    <h5 class="modal-title" id="claimedRewardsModalLabel" style="color: #F0ECE5;">Claimed Rewards</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0ECE5;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="claimedRewardsModalBody" style="text-align: justify;">
+                </div>
             </div>
         </div>
     </div>
@@ -303,6 +320,10 @@
                             <label for="requiredPoints">Required Points</label>
                             <input type="text" class="form-control" id="requiredPoints" required>
                         </div>
+                        <div class="form-group">
+                            <label for="quantity">Quantity</label>
+                            <input type="text" class="form-control" id="quantity" required>
+                        </div>
                         <button type="submit" class="btn btn-primary-custom">Add Reward</button>
                     </form>
                 </div>
@@ -335,6 +356,10 @@
                             <label for="updateRequiredPoints">Required Points</label>
                             <input type="text" class="form-control" id="updateRequiredPoints" required>
                         </div>
+                        <div class="form-group">
+                            <label for="updateQuantity">Quantity</label>
+                            <input type="text" class="form-control" id="updateQuantity" required>
+                        </div>
                         <button type="submit" class="btn btn-primary-custom">Update Reward</button>
                     </form>
                 </div>
@@ -346,8 +371,7 @@
     <div class="modal fade" id="deleteRewardModal" tabindex="-1" role="dialog" aria-labelledby="deleteRewardModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header" style="background: #161A30;">  
-
+                <div class="modal-header" style="background: #161A30;">
                     <h5 class="modal-title" id="deleteRewardModalLabel" style="color: #F0ECE5;">Delete Reward</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0ECE5;">
                         <span aria-hidden="true">&times;</span>
