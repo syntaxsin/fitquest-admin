@@ -206,66 +206,58 @@ onAuthStateChanged(auth, (user) => {
             const adminList = document.querySelector("#admin-list tbody");
             adminList.innerHTML = ''; // Clear existing data
 
-            const gymQuery = query(collection(db, 'Gym'));
+            // Filter active gyms directly
+            const gymQuery = query(collection(db, 'Gym'), where("Status", "==", "Active")); 
             onSnapshot(gymQuery, (snapshot) => {
                 snapshot.docChanges().forEach(async (change) => {
                     if (change.type === 'added' || change.type === 'modified') {
                         const gymDoc = change.doc;
                         const gymData = gymDoc.data();
                         const membersCollection = collection(gymDoc.ref, 'Members');
-                        const membersQuery = query(membersCollection, where("Status", "==", "Active Admin"));
 
-                        // Count active admins
-                        const activeAdminsSnapshot = await getDocs(membersQuery);
+                        // Count active admins (this part remains the same)
+                        const activeAdminsQuery = query(membersCollection, where("Status", "==", "Active Admin"));
+                        const activeAdminsSnapshot = await getDocs(activeAdminsQuery);
                         const adminCount = activeAdminsSnapshot.size;
 
-                        const membersSnapshot = await getDocs(membersQuery);
-                        membersSnapshot.forEach((memberDoc) => {
-                            const adminData = memberDoc.data();
-                            const status = adminData.Status;
+                        const rowId = `${gymDoc.id}`;
+                        const existingRow = document.getElementById(rowId); 
+                        if (existingRow) {
+                            existingRow.remove(); 
+                        }
 
-                            const rowId = `${gymDoc.id}-${memberDoc.id}`;
-                            const existingRow = document.getElementById(rowId); // Check if row already exists
-                            if(existingRow) {
-                                existingRow.remove(); // Remove the row if it exists (to avoid duplicates)
-                            }
+                        const newRow = document.createElement('tr');
+                        newRow.id = rowId;
+                        newRow.innerHTML = `
+                            <td>${gymDoc.id}</td>
+                            <td>${adminCount}</td> 
+                            <td>${gymData.Name}</td>
+                            <td>${gymData.Location}</td>
+                            <td>${gymData.Status}</td>
+                            <td>
+                                <button class="btn btn-secondary-custom edit-button" data-bs-toggle="modal" data-bs-target="#editAdminModal" data-gym-id="${gymDoc.id}" >
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-secondary-custom deactivate-gym-button" data-bs-toggle="modal" data-bs-target="#deactivateGymModal" data-gym-id="${gymDoc.id.replace('GYM', '')}">
+                                    <i class="fas fa-building" ></i>
+                                </button>
+                            </td>
+                        `;
+                        adminList.appendChild(newRow);
 
-                            const newRow = document.createElement('tr');
-                            newRow.id = rowId;
-                            newRow.innerHTML = `
-                                <td>${gymDoc.id}</td>
-                                <td>${adminCount}</td>
-                                <td>${gymData.Name}</td>
-                                <td>${gymData.Location}</td>
-                                <td>${status}</td>
-                                <td>
-                                    <button class="btn btn-secondary-custom edit-button" data-bs-toggle="modal" data-bs-target="#editAdminModal" data-gym-id="${gymDoc.id}" data-member-id="${memberDoc.id}">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-secondary-custom del-button" data-bs-toggle="modal" data-bs-target="#deleteAdminModal" data-gym-id="${gymDoc.id.replace('GYM', '')}" data-member-id="${memberDoc.id}">
-                                        <i class="fas fa-power-off" ></i>
-                                    </button>
-                                    <button class="btn btn-secondary-custom add-button">
-                                        <i class="fa-solid fa-user-plus"></i>
-                                    </button>
-                                </td>
-                            `;
-                            adminList.appendChild(newRow);
+                        // Add an event listener to the edit button after it's added to the DOM
+                        const editButton = newRow.querySelector('.edit-button');
+                        editButton.addEventListener('click', () => openEditAdminModal(gymDoc.id.replace('GYM', ''), memberDoc.id));
 
-                            // Add an event listener to the edit button after it's added to the DOM
-                            const editButton = newRow.querySelector('.edit-button');
-                            editButton.addEventListener('click', () => openEditAdminModal(gymDoc.id.replace('GYM', ''), memberDoc.id));
+                        // Attach event listener to the del-button *after* it's added to the DOM
+                        const delButton = newRow.querySelector('.del-button');
+                        delButton.addEventListener('click', () => {
+                            // Set hidden input values
+                            document.getElementById('delete-gym-id').value = gymDoc.id.replace('GYM', '');
+                            document.getElementById('delete-member-id').value = memberDoc.id;
 
-                            // Attach event listener to the del-button *after* it's added to the DOM
-                            const delButton = newRow.querySelector('.del-button');
-                            delButton.addEventListener('click', () => {
-                                // Set hidden input values
-                                document.getElementById('delete-gym-id').value = gymDoc.id.replace('GYM', '');
-                                document.getElementById('delete-member-id').value = memberDoc.id;
-
-                                // Show the modal (using Bootstrap's JavaScript API)
-                                $('#deleteAdminModal').modal('show');
-                            });
+                            // Show the modal (using Bootstrap's JavaScript API)
+                            $('#deleteAdminModal').modal('show');
                         });
 
                     } else if (change.type === 'removed') {

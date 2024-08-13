@@ -77,22 +77,6 @@
     </style>
 </head>
 <body>
-    <!-- <nav class="navbar navbar-expand-lg navbar-dark px-5">
-        <a class="navbar-brand" href="#">Fit<span style="color: #315abb;">Quest</span> | Super Admin</a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Users</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Admin</a>
-                </li>
-                <li class="nav-item">
-                    <button class="btn btn-secondary-custom ml-2" id="logout">Logout</button>
-                </li>
-            </ul>
-        </div>
-    </nav> -->
     <nav class="navbar navbar-expand-lg navbar-dark px-5">
         <a class="navbar-brand" href="#" style="font-size: 30px;">Fit<span style="color: #315abb;">Quest</span></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -104,12 +88,6 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#" style="font-size: 20px;" data-toggle="modal" data-target="#deactAdminModal">Deactivated Admins</a>
                 </li>
-                <!-- <li class="nav-item">
-                    <a class="nav-link" href="#" style="font-size: 20px;">Users</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" style="font-size: 20px;">Rewards</a>
-                </li> -->
             </ul>
         </div>
         <button class="btn btn-secondary-custom logout" type="submit" style="font-size: 20px;">Logout</button>

@@ -35,10 +35,11 @@ const userStatusElement = document.getElementById('userStatus');
 const firstWeightEntryElement = document.getElementById('firstWeightEntry');
 const lastWeightEntryElement = document.getElementById('lastWeightEntry');
 const pendingRewardsList = document.getElementById('pendingRewardsList');
+const claimedRewardsList = document.getElementById('claimedRewardsList');
 const announcementsContent = document.getElementById('announcementsContent');
 const blogsContent = document.getElementById('blogsContent');
 
-// Function to display user data (including weight entries and pending rewards)
+// Function to display user data (including weight entries and rewards)
 function displayUserData(user) {
     if (user) {
         const gymId = localStorage.getItem('gymId');
@@ -57,6 +58,8 @@ function displayUserData(user) {
                     userStatusElement.textContent = userData.Status || "Unknown";
 
                     const userId = userSnapshot.docs[0].id;
+
+                    // Fetch and display weight entries
                     const weightEntriesRef = collection(db, 'Gym', gymId, 'Members', userId, 'weight_entries');
 
                     // Query for the first weight entry
@@ -95,11 +98,10 @@ function displayUserData(user) {
                         pendingRewardsList.innerHTML = '';
 
                         for (const doc of pendingRewardsSnapshot.docs) {
-                            const rewardName = doc.id; // Reward name is the document ID
-                            const rewardData = doc.data();
+                            const rewardData = doc.data(); // Get the data from the document
 
                             const listItem = document.createElement('li');
-                            listItem.textContent = `${rewardName} (Status: ${rewardData.status})`;
+                            listItem.textContent = `${rewardData.rewardName} (Status: ${rewardData.status})`;
                             pendingRewardsList.appendChild(listItem);
                         }
 
@@ -110,11 +112,14 @@ function displayUserData(user) {
                         }
                     }).catch((error) => {
                         console.error("Error fetching pending rewards:", error);
-                        pendingRewardsList.innerHTML = ''; // Clear the list in case of an error
+                        pendingRewardsList.innerHTML = '';
                         const listItem = document.createElement('li');
                         listItem.textContent = "Error fetching pending rewards";
                         pendingRewardsList.appendChild(listItem);
                     });
+
+                    // Fetch and display claimed rewards
+                    fetchAndDisplayClaimedRewards(gymId, userId);
 
                     // Fetch and display announcements
                     fetchAndDisplayAnnouncements(gymId);
@@ -137,9 +142,38 @@ function displayUserData(user) {
     }
 }
 
+function fetchAndDisplayClaimedRewards(gymId, userId) {
+    const claimedRewardsRef = collection(db, 'Gym', gymId, 'Members', userId, 'claimed_rewards');
+
+    getDocs(claimedRewardsRef)
+        .then((claimedRewardsSnapshot) => {
+            claimedRewardsList.innerHTML = '';
+
+            if (!claimedRewardsSnapshot.empty) {
+                const rewardsContainer = document.createElement('div');
+
+                for (const doc of claimedRewardsSnapshot.docs) {
+                    const rewardData = doc.data();
+                    const claimedDate = rewardData.createdAt.toDate();
+
+                    const rewardElement = document.createElement('p');
+                    rewardElement.textContent = `${rewardData.rewardName} (Claimed on: ${claimedDate.toLocaleDateString("en-US")})`;
+                    rewardsContainer.appendChild(rewardElement);
+                }
+
+                claimedRewardsList.appendChild(rewardsContainer);
+            } else {
+                claimedRewardsList.innerHTML = "<p>No claimed rewards</p>";
+            }
+        })
+        .catch((error) => {
+            console.error("Error fetching claimed rewards:", error);
+            claimedRewardsList.innerHTML = '<p>Error fetching claimed rewards</p>';
+        });
+}
+
 // Function to fetch and display announcements
 function fetchAndDisplayAnnouncements(gymId) {
-    // Assuming you have an 'Announcements' collection under the 'Gym' document
     const announcementsRef = collection(db, 'Gym', gymId, 'Announcements');
 
     getDocs(announcementsRef)
@@ -150,13 +184,12 @@ function fetchAndDisplayAnnouncements(gymId) {
                 for (const doc of announcementsSnapshot.docs) {
                     const announcementData = doc.data();
 
-                    // Create HTML elements to display the announcement
                     const announcementElement = document.createElement('div');
                     announcementElement.innerHTML = `
-                        <h3>${announcementData.title}</h3> 
-                        <p>${announcementData.content}</p>
-                        <p>Posted on: ${announcementData.createdAt.toDate().toLocaleDateString()}</p> 
-                    `;
+              <h3>${announcementData.title}</h3> 
+              <p>${announcementData.content}</p>
+              <p>Posted on: ${announcementData.createdAt.toDate().toLocaleDateString()}</p> 
+            `; // Use backticks (``) for template literals
                     announcementsContent.appendChild(announcementElement);
                 }
             } else {
@@ -184,11 +217,11 @@ function fetchAndDisplayBlogs(gymId) {
 
                     const blogElement = document.createElement('div');
                     blogElement.innerHTML = `
-              <h3>${blogData.title}</h3> 
-              <p>By: ${blogData.author}</p>
-              <p>${blogData.content}</p>
-              <p>Posted on: ${blogData.createdAt.toDate().toLocaleDateString()}</p> 
-            `;
+            <h3>${blogData.title}</h3> 
+            <p>By: ${blogData.author}</p>
+            <p>${blogData.content}</p>
+            <p>Posted on: ${blogData.createdAt.toDate().toLocaleDateString()}</p> 
+          `;
                     blogsContent.appendChild(blogElement);
                 }
             } else {

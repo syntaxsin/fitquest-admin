@@ -9,7 +9,8 @@
     <meta name="author" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/base.css">  
+
     <link rel="stylesheet" href="../css/vendor.css">
     <link rel="stylesheet" href="../css/main.css">
     <script>
@@ -74,11 +75,15 @@
 
         /* Style for pending rewards list */
         #pendingRewardsList {
-
             list-style: none;
             padding: 0;
             margin: 0;
-            text-align: center;
+            text-align: left;
+        }
+
+        /* Optional: Add pagination styles if needed */
+        .pagination {
+            /* ... your pagination styles ... */
         }
 
         .classes-section {
@@ -106,6 +111,7 @@
 
         .class-item .ci-text {
             background: #ffffff;
+            /* White background for the text area */
             position: relative;
             padding: 10px 30px 26px 30px;
             z-index: 1;
@@ -262,8 +268,17 @@
             <div class="col-six tab-full profile-box">
                 <div class="profile-info">
                     <br>
-                    <h2>Pending Rewards:</h2>
-                    <ul id="pendingRewardsList"></ul>
+                    <h2>Rewards</h2>
+                    <div class="row">
+                        <div class="col-six">
+                            <h3>Pending:</h3>
+                            <ul id="pendingRewardsList"></ul>
+                        </div>
+                        <div class="col-six">
+                            <h3>Claimed:</h3>
+                            <ul id="claimedRewardsList"></ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -274,16 +289,18 @@
     <section class="announcements-section">
         <h2>Announcements</h2>
         <div id="announcementsContent">
-            <p id="announcementPlaceholder" style="text-align: justify;">Loading announcements...</p>
+            <p id="announcementPlaceholder">Loading announcements...</p>
         </div>
     </section>
 
     <section class="blogs-section">
         <h2>Blogs</h2>
         <div id="blogsContent">
-            <p id="blogPlaceholder" style="text-align: justify;">Loading blogs...</p>
+            <p id="blogPlaceholder">Loading blogs...</p>
         </div>
     </section>
+
+
 
     <footer>
         <div class="footer-bottom">
@@ -306,7 +323,6 @@
     <script src="../js/jquery-2.1.3.min.js"></script>
     <script src="../js/plugins.js"></script>
     <script src="../js/main.js"></script>
-
     <script type="module" src="bundle/user_profile.bundle.js"></script>
 </body>
 
