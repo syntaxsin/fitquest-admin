@@ -1,21 +1,22 @@
 <?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super Admin | FitQuest</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="../bootstrap-4.5.3-dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" 
-    integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script>
         // Check user type and gym information
         const userType = localStorage.getItem('userType');
 
         if (userType !== 'super_admin') {
             // Redirect to login if not an admin or gym information is missing
-            window.location.href = 'login.php'; 
+            window.location.href = 'login.php';
         }
     </script>
     <style>
@@ -24,18 +25,23 @@
             background-color: #F0ECE5;
             color: #333333;
         }
+
         .navbar {
             background-color: #161A30;
         }
-        .navbar-brand, .navbar-nav .nav-link {
+
+        .navbar-brand,
+        .navbar-nav .nav-link {
             color: white;
             font-size: 20px;
         }
-        .overview-label{
+
+        .overview-label {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
+
         .main-content {
             width: 95vw;
             margin: 2rem auto;
@@ -44,23 +50,28 @@
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
+
         .btn-primary-custom {
             background: #161A30;
             color: white;
             width: 250px;
         }
+
         .btn-primary-custom:hover {
             background: #B6BBC4;
             color: #161A30;
         }
+
         .btn-secondary-custom {
             background: #161A30;
             color: white;
         }
+
         .btn-secondary-custom:hover {
             background: #B6BBC4;
             color: #161A30;
         }
+
         .card-custom {
             display: flex;
             justify-content: center;
@@ -70,12 +81,14 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             margin-bottom: 1rem;
         }
+
         .table th {
             background-color: #161A30;
             color: white;
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark px-5">
         <a class="navbar-brand" href="#" style="font-size: 30px;">Fit<span style="color: #315abb;">Quest</span></a>
@@ -84,11 +97,6 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav ml-auto mr-5">
-                <li class="nav-item">
-                    <a class="nav-link" href="#" style="font-size: 20px;" data-toggle="modal" data-target="#deactAdminModal">Deactivated Admins</a>
-                </li>
-            </ul>
         </div>
         <button class="btn btn-secondary-custom logout" type="submit" style="font-size: 20px;">Logout</button>
     </nav>
@@ -96,7 +104,7 @@
         <h1>Welcome, Super Admin!</h1>
         <div class="card card-custom">
             <div class="overview-label">
-                <h3>Admin Accounts Overview</h3>
+                <h3>FitQuest Branches Overview</h3>
                 <button class="btn btn-primary-custom mb-3 float-right" data-toggle="modal" data-target="#addAdminModal">Open New Branch Account</button>
             </div>
             <div id="admin-list">
@@ -107,7 +115,7 @@
                             <th>No. of Admins</th>
                             <th>Branch Name</th>
                             <th>Location</th>
-                            <th>Account Status</th>
+                            <th>Gym Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -161,12 +169,51 @@
         </div>
     </div>
 
+    <!-- Add Another Admin Modal -->
+    <div class="modal fade" id="addAnotherAdminModal" tabindex="-1" role="dialog" aria-labelledby="addAnotherAdminModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="background: #161A30;">
+                    <h5 class="modal-title" id="addAdminModalLabel" style="color: #F0ECE5;">Add Another Admin</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0ECE5;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-another-admin-form">
+                        <div class="form-group">
+                            <label for="gym-id">Gym ID</label>
+                            <input type="text" class="form-control" id="gym-id" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="add-email">E-mail Address</label>
+                            <input type="email" class="form-control" id="add-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="add-fname">First Name</label>
+                            <input type="text" class="form-control" id="add-fname" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="add-lname">Last Name</label>
+                            <input type="text" class="form-control" id="add-lname" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="add-password">Password</label>
+                            <input type="password" class="form-control" id="add-password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom">Add New Admin</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Update Admin Modal -->
     <div class="modal fade" id="editAdminModal" tabindex="-1" role="dialog" aria-labelledby="editAdminModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header" style="background: #161A30;">
-                    <h5 class="modal-title" id="editAdminModalLabel" style="color: #F0ECE5;">Edit Admin</h5>
+                    <h5 class="modal-title" id="editAdminModalLabel" style="color: #F0ECE5;">Edit Information</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0ECE5;">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -183,60 +230,22 @@
                             <label for="edit-location">Location</label>
                             <input type="text" class="form-control" id="edit-location" required>
                         </div>
-                        <button type="submit" class="btn btn-primary-custom" id="update-admin">Update Admin</button>
+                        <button type="submit" class="btn btn-primary-custom" id="update-admin">Update</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Deactivate Admin Modal -->
-    <div class="modal fade" id="deleteAdminModal" tabindex="-1" role="dialog" aria-labelledby="deleteAdminModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
+    <div class="modal fade" id="adminDetailsModal" tabindex="-1" role="dialog" aria-labelledby="adminDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document"> <div class="modal-content">
                 <div class="modal-header" style="background: #161A30;">
-                    <h5 class="modal-title" id="deleteAdminModalLabel" style="color: #F0ECE5;">Confirm Deactivation</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0ECE5;">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <h5 class="modal-title" id="adminDetailsModalLabel" style="color: #F0ECE5;">Admins</h5>
                 </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to deactivate this admin account?</p>
-                    <input type="hidden" id="delete-gym-id">
-                    <input type="hidden" id="delete-member-id">
-                    <button type="button" class="btn btn-secondary-custom" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger" id="confirm-delete">Deactivate</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Deactivate Admins Modal -->
-    <div class="modal fade" id="deactAdminModal" tabindex="-1" role="dialog" aria-labelledby="deactAdminModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header" style="background: #161A30;">
-                    <h5 class="modal-title" id="editAdminModalLabel" style="color: #F0ECE5;">Deactivated Admins</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0ECE5;">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div id="deact-list">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Branch Name</th>
-                                    <th>Location</th>
-                                    <th>Account Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
+                <div class="modal-body" id="adminDetailsModalBody">
                     </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary-custom" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>

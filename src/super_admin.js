@@ -207,7 +207,7 @@ onAuthStateChanged(auth, (user) => {
             adminList.innerHTML = ''; // Clear existing data
 
             // Filter active gyms directly
-            const gymQuery = query(collection(db, 'Gym'), where("Status", "==", "Active")); 
+            const gymQuery = query(collection(db, 'Gym')); 
             onSnapshot(gymQuery, (snapshot) => {
                 snapshot.docChanges().forEach(async (change) => {
                     if (change.type === 'added' || change.type === 'modified') {
@@ -215,7 +215,6 @@ onAuthStateChanged(auth, (user) => {
                         const gymData = gymDoc.data();
                         const membersCollection = collection(gymDoc.ref, 'Members');
 
-                        // Count active admins (this part remains the same)
                         const activeAdminsQuery = query(membersCollection, where("Status", "==", "Active Admin"));
                         const activeAdminsSnapshot = await getDocs(activeAdminsQuery);
                         const adminCount = activeAdminsSnapshot.size;
@@ -228,6 +227,14 @@ onAuthStateChanged(auth, (user) => {
 
                         const newRow = document.createElement('tr');
                         newRow.id = rowId;
+
+                        // Disable buttons if the gym is inactive
+                        const isGymInactive = gymData.Status === 'Inactive';
+                        const buttonDisabledAttribute = isGymInactive ? 'disabled' : '';
+
+                        // Dynamically set the class for the "fa-power-off" button
+                        const powerOffButtonClass = isGymInactive ? "reactivate-gym-button" : "deactivate-gym-button";
+
                         newRow.innerHTML = `
                             <td>${gymDoc.id}</td>
                             <td>${adminCount}</td> 
@@ -235,29 +242,53 @@ onAuthStateChanged(auth, (user) => {
                             <td>${gymData.Location}</td>
                             <td>${gymData.Status}</td>
                             <td>
-                                <button class="btn btn-secondary-custom edit-button" data-bs-toggle="modal" data-bs-target="#editAdminModal" data-gym-id="${gymDoc.id}" >
+                                <button class="btn btn-secondary-custom add-admin-button" data-gym-id="${gymDoc.id}" ${buttonDisabledAttribute}>
+                                    <i class="fas fa-user-plus" ></i>
+                                </button>
+                                <button class="btn btn-secondary-custom edit-button" data-bs-toggle="modal" data-bs-target="#editAdminModal" data-gym-id="${gymDoc.id}" ${buttonDisabledAttribute}>
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-secondary-custom deactivate-gym-button" data-bs-toggle="modal" data-bs-target="#deactivateGymModal" data-gym-id="${gymDoc.id.replace('GYM', '')}">
+                                <button class="btn btn-secondary-custom view-admins-button" data-bs-toggle="modal" data-bs-target="#deactivateGymModal" data-gym-id="${gymDoc.id}" ${buttonDisabledAttribute}>
                                     <i class="fas fa-building" ></i>
+                                </button>
+                                <button class="btn btn-secondary-custom ${powerOffButtonClass}" data-gym-id="${gymDoc.id}"> 
+                                    <i class="fas fa-power-off"></i>
                                 </button>
                             </td>
                         `;
                         adminList.appendChild(newRow);
 
-                        // Add an event listener to the edit button after it's added to the DOM
+                        // Add event listener to the "fa-user-plus" button
+                        const addAnotherAdminButton = newRow.querySelector('.add-admin-button');
+                        addAnotherAdminButton.addEventListener('click', () => {
+                            // Populate the gym ID in the modal 
+                            document.getElementById('gym-id').value = gymDoc.id;
+                            createAdminAccount(gymDoc.id)
+                            // Show the modal
+                            $('#addAnotherAdminModal').modal('show');
+                        });
+
                         const editButton = newRow.querySelector('.edit-button');
-                        editButton.addEventListener('click', () => openEditAdminModal(gymDoc.id.replace('GYM', ''), memberDoc.id));
+                        editButton.addEventListener('click', () => {
+                            openEditAdminModal(gymDoc.id.replace('GYM', '')); 
+                        });
 
-                        // Attach event listener to the del-button *after* it's added to the DOM
-                        const delButton = newRow.querySelector('.del-button');
-                        delButton.addEventListener('click', () => {
-                            // Set hidden input values
-                            document.getElementById('delete-gym-id').value = gymDoc.id.replace('GYM', '');
-                            document.getElementById('delete-member-id').value = memberDoc.id;
+                        // Add event listener to the "View Admins" button
+                        const viewAdminsButton = newRow.querySelector('.view-admins-button');
+                        viewAdminsButton.addEventListener('click', () => {
+                            displayDetailedAdminList(gymDoc); 
+                        });
 
-                            // Show the modal (using Bootstrap's JavaScript API)
-                            $('#deleteAdminModal').modal('show');
+                        // Event listeners for deactivate/reactivate gym button
+                        const powerOffButton = newRow.querySelector(`.${powerOffButtonClass}`);
+                        powerOffButton.addEventListener('click', () => {
+                            if (isGymInactive) {
+                                reactivateGym(gymDoc.id);
+                            } else {
+                                // Get the gym ID from the button's data attribute
+                                const gymId = powerOffButton.dataset.gymId;
+                                deactivateGym(gymId);
+                            }
                         });
 
                     } else if (change.type === 'removed') {
@@ -279,83 +310,207 @@ onAuthStateChanged(auth, (user) => {
         }
         displayAdmins();
 
-        const logoutButton = document.querySelector('.logout'); 
+        // Function to deactivate a gym
+        async function deactivateGym(gymId) {
+            const gymDocRef = doc(db, 'Gym', gymId);
+            confirm(`Are you sure you want to deactivate ${gymId}.`);
+
+            try {
+                // Update the gym's status to 'Inactive'
+                await updateDoc(gymDocRef, { Status: 'Inactive' });
+                alert(`Gym ${gymId} has been deactivated.`);
+                displayAdmins(); // Refresh the admin list
+            } catch (error) {
+                console.error('Error deactivating gym:', error);
+                alert('Failed to deactivate gym. Please try again.');
+            }
+        }
+
+        // Function to reactivate a gym
+        async function reactivateGym(gymId) {
+            const gymDocRef = doc(db, 'Gym', gymId);
+            confirm(`Are you sure you want to reactivate ${gymId}.`);
+
+            try {
+                // 1. Update the gym's status to 'Active'
+                await updateDoc(gymDocRef, { Status: 'Active' });
+
+                // 2. (Optional) Reactivate all admins within the gym
+                const membersCollection = collection(gymDocRef, 'Members');
+                const deactivatedAdminsQuery = query(membersCollection, where("Status", "==", "Deactivated"));
+                const deactivatedAdminsSnapshot = await getDocs(deactivatedAdminsQuery);
+
+                const reactivateAdminPromises = deactivatedAdminsSnapshot.docs.map(async (memberDoc) => {
+                    await updateDoc(memberDoc.ref, { Status: 'Active Admin' });
+                });
+                await Promise.all(reactivateAdminPromises);
+
+                alert(`Gym ${gymId} has been reactivated.`);
+                displayAdmins(); // Refresh the admin list
+            } catch (error) {
+                console.error('Error reactivating gym:', error);
+                alert('Failed to reactivate gym. Please try again.');
+            }
+        }
+
+        // Function to create a new admin account
+        async function createAdminAccount(gymId) {
+            const addAnotherAdminForm = document.getElementById('add-another-admin-form');
+
+            addAnotherAdminForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const email = document.getElementById('add-email').value;
+                const firstName = document.getElementById('add-fname').value;
+                const lastName = document.getElementById('add-lname').value;
+                const password = document.getElementById('add-password').value;
+
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    console.log('User Created:', userCredential);
+
+                    const gymDocRef = doc(db, 'Gym', gymId);
+                    const membersCollection = collection(gymDocRef, 'Members');
+
+                    const membersSnapshot = await getDocs(membersCollection);
+                    const existingMemberIds = membersSnapshot.docs.map(doc => doc.id);
+
+                    const newAdminId = generateNextId(existingMemberIds);
+
+                    await setDoc(doc(membersCollection, newAdminId), {
+                        Email: email,
+                        FirstName: firstName,
+                        LastName: lastName,
+                        Status: 'Active Admin',
+                        createdAt: serverTimestamp(),
+                    });
+
+                    alert(`Admin added successfully to ${gymId} with ID ${newAdminId}!`);
+                    addAnotherAdminForm.reset();
+                    $('#addAnotherAdminModal').modal('hide');
+                    displayAdmins();
+
+                } catch (error) {
+                    console.error('Error adding admin:', error);
+                    alert('Failed to add admin. Please check the console for details.');
+                }
+            });
+        }
+
+        // Helper function to generate the next ID 
+        function generateNextId(existingIds) {
+            const prefix = "A";
+            const maxId = existingIds
+                .filter(id => id.startsWith(prefix))
+                .map(id => parseInt(id.replace(prefix, ''), 10))
+                .reduce((max, current) => Math.max(max, current), 0);
+            return `${prefix}${String(maxId + 1).padStart(3, '0')}`;
+        }
+
+        // Function to display detailed admin list with deactivate/reactivate options
+        async function displayDetailedAdminList(gymDoc) {
+            const gymId = gymDoc.id;
+            const gymData = gymDoc.data();
+            const membersCollection = collection(gymDoc.ref, 'Members');
+
+            // Fetch all admins (active and deactivated)
+            const allAdminsQuery = query(membersCollection, where("Status", "in", ["Active Admin", "Deactivated"]));
+            const allAdminsSnapshot = await getDocs(allAdminsQuery);
+
+            const adminDetailsTable = document.createElement('table');
+            adminDetailsTable.classList.add('table', 'table-striped');
+            adminDetailsTable.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            `;
+
+            allAdminsSnapshot.forEach((memberDoc) => {
+                const adminData = memberDoc.data();
+                const memberId = memberDoc.id;
+                const status = adminData.Status;
+
+                const newRow = adminDetailsTable.querySelector('tbody').insertRow();
+                newRow.innerHTML = `
+                    <td>${memberId}</td>
+                    <td>${adminData.FirstName}</td>
+                    <td>${adminData.LastName}</td>
+                    <td>${adminData.Email}</td>
+                    <td>${status}</td>
+                    <td>
+                        <button class="btn btn-secondary-custom deactivate-reactivate-button" 
+                                data-gym-id="${gymId}" 
+                                data-member-id="${memberId}"
+                                data-current-status="${status}">
+                            ${status === 'Active Admin' ? '<i class="fas fa-power-off"></i>' : '<i class="fas fa-power-off"></i>'}
+                        </button>
+                    </td>
+                `;
+
+                const deactivateReactivateButton = newRow.querySelector('.deactivate-reactivate-button');
+                deactivateReactivateButton.addEventListener('click', () => {
+                    const newStatus = status === 'Active Admin' ? 'Deactivated' : 'Active Admin';
+                    handleDeactivateReactivateAdmin(gymId, memberId, newStatus);
+                });
+            });
+
+            showModalWithAdminDetails(gymId, gymData.Name, adminDetailsTable); 
+        }
+
+        // Function to handle deactivating or reactivating an admin
+        async function handleDeactivateReactivateAdmin(gymId, memberId, newStatus) {
+            const gymDocRef = doc(db, 'Gym', gymId);
+            const adminDocRef = doc(gymDocRef, 'Members', memberId);
+
+            try {
+                await updateDoc(adminDocRef, { Status: newStatus });
+                displayAdmins(); // Refresh the main admin list
+                displayDetailedAdminList(gymDoc)
+                alert(`Admin ${memberId} from gym ${gymId} has been ${newStatus === 'Deactivated' ? 'deactivated' : 'reactivated'}.`);
+                // You might also want to refresh the detailed admin list if it's still open
+            } catch (error) {
+                console.error('Error updating admin status:', error);
+                alert('Failed to update admin status. Please try again.');
+            }
+        }
+        
+        function showModalWithAdminDetails(gymId, gymName, adminDetailsTable) {
+            // Example implementation using Bootstrap modal
+            const modal = new bootstrap.Modal(document.getElementById('adminDetailsModal')); // Assuming you have a modal with this ID
+            
+            // Set the modal title and content
+            document.getElementById('adminDetailsModalLabel').textContent = `Admins for ${gymName} (${gymId})`;
+            document.getElementById('adminDetailsModalBody').innerHTML = ''; // Clear previous content
+            document.getElementById('adminDetailsModalBody').appendChild(adminDetailsTable);
+        
+            modal.show();
+        }
+
+        const logoutButton = document.querySelector('.logout');
         logoutButton.addEventListener('click', async () => {
             try {
                 await signOut(auth);
                 console.log('User signed out successfully');
                 // Optionally, clear any stored user data
-                localStorage.removeItem('super_admin');
+                localStorage.removeItem('userType');
 
                 window.location.href = '../index.php'; // Replace with your actual login page URL
             } catch (error) {
                 console.error('Error signing out:', error);
             }
-        });
+        });      
+
     } else {
         // User is signed out
         window.location.href = 'login.php';
     }
 })
-
-
-
-
-
-// async function displayDeactivatedAdmins() {
-//     const deactAdminList = document.querySelector("#deact-list tbody"); 
-//     deactAdminList.innerHTML = ""; 
-
-//     const deactivatedAdminsCollection = collection(db, 'deactivated_admins');
-//     const deactivatedGymDocRef = doc(deactivatedAdminsCollection, gymCollectionName);
-  
-//     try {
-//         // 1. Fetch all deactivated gyms from 'deactivated_admins'
-//         const deactivatedAdminsCollection = collection(db, 'deactivated_admins');
-//         const deactivatedGymsSnapshot = await getDocs(deactivatedAdminsCollection);
-    
-//         deactivatedGymsSnapshot.forEach(async (deactivatedGymDoc) => {
-//             const deactivatedGymData = deactivatedGymDoc.data();
-            
-//             // 2. Get 'Members' subcollection within the deactivated gym
-//             const deactivatedMembersCollection = collection(deactivatedGymDocRef, 'Members');
-//             const deactivatedMembersSnapshot = await getDocs(deactivatedMembersCollection);
-    
-//             // 3. Find the deactivated admin within the 'Members' subcollection
-//             const deactivatedAdminDoc = deactivatedMembersSnapshot.docs.find(
-//             doc => doc.data().Status === 'Deactivated'
-//             );
-    
-//             if (deactivatedAdminDoc) {
-//             const deactivatedAdminData = deactivatedAdminDoc.data();
-    
-//             // 4. Create a new row for the deactivated admin
-//             const newRow = document.createElement('tr');
-//             newRow.innerHTML = `
-//                 <td>${deactivatedAdminData.id}</td> 
-//                 <td>${deactivatedGymData.Name}</td>
-//                 <td>${deactivatedGymData.Location}</td>
-//                 <td>${deactivatedAdminData.Status}</td>
-//                 <td>
-//                 <button class="btn btn-secondary-custom reactivate-button" 
-//                         data-gym-id="${deactivatedGymDoc.id}" 
-//                         data-member-id="${deactivatedAdminData.id}">
-//                     <i class="fas fa-power-off"></i> 
-//                 </button>
-//                 </td>
-//             `;
-//             deactAdminList.appendChild(newRow);
-    
-//             // 5. Attach event listener to the reactivate button (implementation needed)
-//             const reactivateButton = newRow.querySelector('.reactivate-button');
-//             reactivateButton.addEventListener('click', () => {
-//                 // You'll need to implement the reactivation logic here
-//                 console.log("Reactivate button clicked for:", deactivatedGymDoc.id, deactivatedAdminData.id);
-//             });
-//             }
-//         });
-//     } catch (error) {
-//       console.error("Error displaying deactivated admins:", error);
-//       // Handle the error appropriately
-//     }
-//   }

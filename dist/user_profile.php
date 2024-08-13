@@ -233,16 +233,15 @@
         <div class="header-logo">
             <a href="user_profile.php">FitQuest</a>
         </div>
-        <nav id="header-nav-wrap">
+        <!-- <nav id="header-nav-wrap">
             <ul class="header-main-nav">
                 <li><a class="smoothscroll" href="index.html#home" title="home">Home</a></li>
                 <li><a class="smoothscroll" href="index.html#about" title="about">About</a></li>
-                <li><a class="smoothscroll" href="index.html#our-team"  
-                        title="our-team">Team</a></li>
+                <li><a class="smoothscroll" href="index.html#our-team" title="our-team">Team</a></li>
                 <li><a class="smoothscroll" href="index.html#bmi-calculator" title="bmi-calculator">BMI Calculator</a></li>
                 <li><a class="smoothscroll" href="index.html#download" title="download">Download</a></li>
             </ul>
-        </nav>
+        </nav> -->
         <a class="header-menu-toggle" href="#"><span>Menu</span></a>
     </header>
 
