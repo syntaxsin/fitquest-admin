@@ -310,6 +310,7 @@ $('#verifyRewardModal').on('click', '.verify-claim-btn', async function () {
                 transaction.set(newRewardRef, {
                     ...rewardData,
                     status: 'claimed',
+                    quantityClaimed: rewardData.quantityClaimed,
                     createdAt: serverTimestamp()
                 });
 

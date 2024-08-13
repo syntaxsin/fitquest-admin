@@ -126,9 +126,7 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Email</th>
+                            <th>No. of Admins</th>
                             <th>Branch Name</th>
                             <th>Location</th>
                             <th>Account Status</th>

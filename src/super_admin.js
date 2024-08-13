@@ -201,33 +201,6 @@ onAuthStateChanged(auth, (user) => {
                 });
         }
 
-        // Deactivate Admin Function
-        const confirmDeactivateButton = document.getElementById("confirm-delete");
-        confirmDeactivateButton.addEventListener('click', async (event) => {
-            event.preventDefault();
-
-            const gymId = document.getElementById('delete-gym-id').value;
-            const memberId = document.getElementById('delete-member-id').value;
-
-            const gymCollectionName = `GYM${gymId}`;
-            const gymDocRef = doc(db, 'Gym', gymCollectionName);
-            const adminDocRef = doc(gymDocRef, 'Members', memberId); // Reference to the specific admin document
-
-            try {
-                // Update the admin's status to 'Deactivated'
-                await updateDoc(adminDocRef, { Status: 'Deactivated' });
-
-                $('#deleteAdminModal').modal('hide');
-
-                alert(`Admin ${memberId} from gym ${gymId} has been deactivated.`);
-                displayAdmins(); // Refresh the admin list to reflect the change
-
-            } catch (error) {
-                console.error('Error deactivating admin:', error);
-                alert('Failed to deactivate admin. Please try again.');
-            }
-        });
-
         // Fetch and display admin data
         function displayAdmins() {
             const adminList = document.querySelector("#admin-list tbody");
@@ -241,6 +214,10 @@ onAuthStateChanged(auth, (user) => {
                         const gymData = gymDoc.data();
                         const membersCollection = collection(gymDoc.ref, 'Members');
                         const membersQuery = query(membersCollection, where("Status", "==", "Active Admin"));
+
+                        // Count active admins
+                        const activeAdminsSnapshot = await getDocs(membersQuery);
+                        const adminCount = activeAdminsSnapshot.size;
 
                         const membersSnapshot = await getDocs(membersQuery);
                         membersSnapshot.forEach((memberDoc) => {
@@ -257,9 +234,7 @@ onAuthStateChanged(auth, (user) => {
                             newRow.id = rowId;
                             newRow.innerHTML = `
                                 <td>${gymDoc.id}</td>
-                                <td>${adminData.FirstName}</td>
-                                <td>${adminData.LastName}</td>
-                                <td>${adminData.Email}</td>
+                                <td>${adminCount}</td>
                                 <td>${gymData.Name}</td>
                                 <td>${gymData.Location}</td>
                                 <td>${status}</td>
@@ -269,6 +244,9 @@ onAuthStateChanged(auth, (user) => {
                                     </button>
                                     <button class="btn btn-secondary-custom del-button" data-bs-toggle="modal" data-bs-target="#deleteAdminModal" data-gym-id="${gymDoc.id.replace('GYM', '')}" data-member-id="${memberDoc.id}">
                                         <i class="fas fa-power-off" ></i>
+                                    </button>
+                                    <button class="btn btn-secondary-custom add-button">
+                                        <i class="fa-solid fa-user-plus"></i>
                                     </button>
                                 </td>
                             `;

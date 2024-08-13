@@ -243,7 +243,11 @@ async function showClaimedRewardsModal(memberId) {
             let rewardsList = '<ul>';
             claimedRewardsSnapshot.forEach(doc => {
                 const rewardData = doc.data();
-                rewardsList += `<li>${rewardData.rewardName} - Claimed on ${rewardData.createdAt.toDate().toLocaleString()}</li>`;
+                rewardsList += `
+                    <li style="font-size: 18px;">
+                        ${rewardData.rewardName} (${rewardData.requiredPoints} pts, ${rewardData.quantityClaimed}x) - Claimed on <strong>${doc.id}</strong>
+                    </li>
+                `;
             });
             rewardsList += '</ul>';
             modalBody.innerHTML = rewardsList;

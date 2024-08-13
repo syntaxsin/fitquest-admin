@@ -174,7 +174,7 @@
 
     <!-- Claimed Rewards History Modal -->
     <div class="modal fade" id="claimedRewardsModal" tabindex="-1" aria-labelledby="claimedRewardsModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header" style="background: #161A30;">
                     <h5 class="modal-title" id="claimedRewardsModalLabel" style="color: #F0ECE5;">Claimed Rewards</h5>
