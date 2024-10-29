@@ -35,9 +35,27 @@
             padding: 5px 8px;
         }
 
+        .overview-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .main-content2 {
+            width: 80vw;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
         .main-content {
             width: auto;
             padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .btn-primary-custom {
@@ -61,26 +79,42 @@
             color: #161A30;
         }
 
+        .card-custom {
+            display: flex;
+            justify-content: center;
+            background: white;
+            padding: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+
         .table th {
             background-color: #161A30;
             color: white;
+            font-size: 16px;
         }
 
         .div-cards {
             display: flex;
         }
 
-        .card {
-            background: #B6BBC4;
-        }
-
         .card:hover {
             cursor: pointer;
         }
-
-        .add-reward-btn,
-        .add-user-btn {
-            padding: 45px 160px;
+        .card-body{
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        .card-text{
+            font-weight: 700;
+        }
+        .users-count:hover, .rewards-count:hover,
+        .inactive:hover{
+            color: #F0ECE5;
+            background-color: #161A30;
+            transition: 0.2s ease-in-out;
         }
     </style>
 </head>
@@ -109,65 +143,80 @@
         <button class="btn btn-secondary-custom" id="logout" type="submit" style="font-size: 18px;">Logout</button>
     </nav>
 
-    <div class="container-fluid main-content">
+    <div class="container-fluid">
         <div class="main-content row row-cols-2">
             <!-- Real-time snapshot of quantity of the users and rewards -->
             <div class="div-cards col">
-                <div class="card m-1" style="width: 18rem;">
+                <div class="card m-1 users-count" style="width: 20rem;">
                     <div class="card-body">
-                        <p class="card-text">quantity</p>
-                        <h4 class="card-title">Users</h4>
+                        <h3 class="card-title" style="margin-bottom: 0;">Users</h3>
+                        <h2 class="card-text">quantity</h2>
                     </div>
                 </div>
-                <div class="card m-1" style="width: 18rem;">
+                <div class="card m-1 rewards-count" style="width: 20rem;">
                     <div class="card-body">
-                        <p class="card-text">quantity</p>
-                        <h4 class="card-title">Rewards</h4>
+                        <h3 class="card-title" style="margin-bottom: 0;">Rewards</h3>
+                        <h2 class="card-text">quantity</h2>
                     </div>
                 </div>
-                <div class="card m-1" style="width: 18rem;">
+                <div class="card m-1 inactive" style="width: 20rem;">
                     <div class="card-body" style="display: flex; align-items:center;">
-                        <h4 class="card-title">Deactivated Accounts</h4>
+                        <h3 class="card-title">Deactivated Accounts</h3>
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="main-content2">
             <!-- User Table -->
-            <div class="add-btn col">
-                <button type="button" class="add-btn1 btn btn-secondary-custom btn-lg add-reward-btn" data-toggle="modal" data-target="#addRewardModal">Add Reward</button>
-                <button type="button" class="add-btn2 btn btn-secondary-custom btn-lg add-user-btn" data-toggle="modal" data-target="#addUserModal">Add New User</button>
+                <h1>Active Users</h1>
+            <div class="card card-custom">
+                <div class="overview-label">
+                    <h3> </h3>
+                    <button type="button" class="btn btn-primary-custom mb-3 float-right" data-toggle="modal" data-target="#addUserModal">Add New User</button>
+                </div>
+                <div id="user-list">
+                    <table class="table table-striped table-hover table-responsive-xl">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Email</th>
+                                <th>Account Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div id="user-list" class="col">
-                <table class="table table-striped table-hover table-responsive-xl">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Email</th>
-                            <th>Account Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-            <div id="rewards-list" class="col">
-                <table class="table table-striped table-hover table-responsive-xl">
-                    <thead>
-                        <tr>
-                            <th>Reward ID</th>
-                            <th>Reward Name</th>
-                            <th>Description</th>
-                            <th>Required Points</th>
-                            <th>Quantity</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+        </div>
+        <div class="main-content2">
+            <!-- Rewards Table -->
+                <h1>Available Rewards</h1>
+            <div class="card card-custom">
+                <div class="overview-label">
+                    <h3> </h3>
+                    <button type="button" class="btn btn-primary-custom mb-3 float-right" data-toggle="modal" data-target="#addRewardModal">Add Reward</button>
+                </div>
+                <div id="rewards-list">
+                    <table class="table table-striped table-hover table-responsive-xl">
+                        <thead>
+                            <tr>
+                                <th>Reward ID</th>
+                                <th>Reward Name</th>
+                                <th>Description</th>
+                                <th>Required Points</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
