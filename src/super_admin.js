@@ -66,7 +66,8 @@ onAuthStateChanged(auth, (user) => {
                 console.log('Gym Doc Ref:', gymDocRef.path);
                 await setDoc(gymDocRef, {
                     Location: location,
-                    Name: branch
+                    Name: branch,
+                    Status: "Active"
                 });
 
                 const membersCollection = collection(gymDocRef, 'Members');
@@ -467,9 +468,11 @@ onAuthStateChanged(auth, (user) => {
         }
 
         // Function to handle deactivating or reactivating an admin
-        async function handleDeactivateReactivateAdmin(gymId, memberId, newStatus) {
+        async function handleDeactivateReactivateAdmin(gymDoc, gymId, memberId, newStatus) {
             const gymDocRef = doc(db, 'Gym', gymId);
             const adminDocRef = doc(gymDocRef, 'Members', memberId);
+
+            // const gymDoc = await getDoc(gymDocRef);
 
             try {
                 await updateDoc(adminDocRef, { Status: newStatus });
