@@ -112,7 +112,6 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>No. of Admins</th>
                             <th>Branch Name</th>
                             <th>Location</th>
                             <th>Gym Status</th>
