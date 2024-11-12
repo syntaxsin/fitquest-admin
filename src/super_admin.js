@@ -240,7 +240,7 @@ onAuthStateChanged(auth, (user) => {
               where("Status", "==", "Active Admin")
             );
             const activeAdminsSnapshot = await getDocs(activeAdminsQuery);
-            // const adminCount = activeAdminsSnapshot.size;
+            const adminCount = activeAdminsSnapshot.size;
 
             const rowId = `${gymDoc.id}`;
             const existingRow = document.getElementById(rowId);
@@ -261,7 +261,8 @@ onAuthStateChanged(auth, (user) => {
               : "deactivate-gym-button";
 
             newRow.innerHTML = `
-                            <td>${gymDoc.id}</td> 
+                            <td>${gymDoc.id}</td>
+                            <td>${adminCount}</td>
                             <td>${gymData.Name}</td>
                             <td>${gymData.Location}</td>
                             <td>${gymData.Status}</td>

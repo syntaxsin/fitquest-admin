@@ -224,6 +224,12 @@
             font-size: 2.5em;
             margin-bottom: 30px;
         }
+
+        #announcementsContent,
+        #blogsContent{
+            padding: 0 75px;
+            text-align: justify;
+        }
     </style>
 </head>
 
@@ -287,6 +293,7 @@
 
     <section class="announcements-section">
         <h2>Announcements</h2>
+        <hr style="width: 40%; height:2px;">
         <div id="announcementsContent">
             <p id="announcementPlaceholder">Loading announcements...</p>
         </div>
@@ -294,6 +301,7 @@
 
     <section class="blogs-section">
         <h2>Blogs</h2>
+        <hr style="width: 40%; height:2px;">
         <div id="blogsContent">
             <p id="blogPlaceholder">Loading blogs...</p>
         </div>
